@@ -220,6 +220,7 @@ export class AniListClient {
             episodes
             duration
             genres
+            synonyms
             averageScore
             meanScore
             popularity

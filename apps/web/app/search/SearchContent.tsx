@@ -17,8 +17,11 @@ import {
   Sparkles,
   TvMinimalPlay,
 } from "lucide-react";
-import { animeApi } from "@anitube/api";
-import type { SearchResult } from "@anitube/api";
+import type { SearchResponse, SearchResult } from "@anitube/api";
+import {
+  fetchAdvancedSearch,
+  fetchSearchSuggestions,
+} from "@/lib/search/client";
 import { AnimeCard, AnimeCardSkeleton } from "@/components/home/AnimeCard";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -411,6 +414,10 @@ export default function SearchContent() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [showRecent, setShowRecent] = useState(false);
+  const [liveSuggestions, setLiveSuggestions] = useState<
+    Array<{ id: number; title: string; coverImage: string; score: number }>
+  >([]);
+  const [suggestLoading, setSuggestLoading] = useState(false);
 
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
@@ -438,6 +445,29 @@ export default function SearchContent() {
     };
   }, [inputValue, router]);
 
+  // ── Live fuzzy suggestions while typing ───────────────────────────────────
+  useEffect(() => {
+    const trimmed = inputValue.trim();
+    if (trimmed.length < 2) {
+      setLiveSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setSuggestLoading(true);
+      try {
+        const res = await fetchSearchSuggestions(trimmed, 8);
+        setLiveSuggestions(res.suggestions);
+      } catch {
+        setLiveSuggestions([]);
+      } finally {
+        setSuggestLoading(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [inputValue]);
+
   // ── Close recent dropdown on outside click ────────────────────────────────
   useEffect(() => {
     function handleOutsideClick(e: MouseEvent) {
@@ -456,9 +486,9 @@ export default function SearchContent() {
   const isSearchActive =
     urlQuery.trim().length > 0 || hasActiveFilters(filters);
 
-  const { data, isLoading, error, isFetching } = useQuery({
+  const { data, isLoading, error, isFetching } = useQuery<SearchResponse>({
     queryKey: [
-      "search",
+      "advanced-search",
       urlQuery,
       urlPage,
       filters.genres,
@@ -467,7 +497,8 @@ export default function SearchContent() {
       filters.sort,
     ],
     queryFn: async () => {
-      const result = await animeApi.searchAnime(urlQuery, {
+      const result = await fetchAdvancedSearch({
+        q: urlQuery,
         page: urlPage,
         perPage: PER_PAGE,
         genres: filters.genres.length > 0 ? filters.genres : undefined,
@@ -628,6 +659,9 @@ export default function SearchContent() {
             <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none text-white">
               SEARCH
             </h1>
+            <p className="mt-2 text-sm font-bold text-white/80 max-w-md">
+              Fuzzy matching across English, romaji, native titles &amp; synonyms
+            </p>
           </div>
           {urlQuery && data && (
             <div className="sm:ml-auto bg-pastel-yellow-300 border-3 border-white px-5 py-3 shadow-brutal font-black text-black text-sm uppercase tracking-wider">
@@ -696,8 +730,47 @@ export default function SearchContent() {
             </button>
           </div>
 
+          {/* Live fuzzy suggestions */}
+          {showRecent &&
+            inputValue.trim().length >= 2 &&
+            (liveSuggestions.length > 0 || suggestLoading) && (
+              <div className="absolute top-full left-0 right-0 z-50 bg-white border-4 border-t-0 border-black shadow-brutal-lg">
+                <div className="flex items-center justify-between px-4 py-2 border-b-3 border-black bg-pastel-purple-100">
+                  <span className="font-black text-xs uppercase tracking-widest flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Smart matches
+                  </span>
+                  {suggestLoading && (
+                    <span className="text-xs font-bold animate-pulse">
+                      Searching…
+                    </span>
+                  )}
+                </div>
+                <ul>
+                  {liveSuggestions.map((item) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-pastel-purple-50 text-left border-b border-neutral-100 last:border-0 transition-colors"
+                        onClick={() => handleSuggestionSearch(item.title)}
+                      >
+                        <span className="font-bold text-sm flex-1 truncate">
+                          {item.title}
+                        </span>
+                        <span className="text-[10px] font-black uppercase bg-pastel-mint-300 border-2 border-black px-1.5 py-0.5">
+                          {item.score}%
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
           {/* Recent Searches Dropdown */}
-          {showRecent && recentSearches.length > 0 && (
+          {showRecent &&
+            inputValue.trim().length < 2 &&
+            recentSearches.length > 0 && (
             <div className="absolute top-full left-0 right-0 z-50 bg-white border-4 border-t-0 border-black shadow-brutal-lg">
               <div className="flex items-center justify-between px-4 py-2 border-b-3 border-black bg-pastel-yellow-100">
                 <span className="font-black text-xs uppercase tracking-widest flex items-center gap-1.5">
@@ -846,16 +919,44 @@ export default function SearchContent() {
 
         {/* ── Results Count Strip ─────────────────────────────────────────── */}
         {urlQuery && !isLoading && data && (
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="space-y-3">
+            {data.meta?.correctedQuery &&
+              data.meta.correctedQuery.toLowerCase() !==
+                urlQuery.trim().toLowerCase() && (
+                <div className="flex flex-wrap items-center gap-2 bg-pastel-mint-200 border-3 border-black px-4 py-3 shadow-brutal-sm">
+                  <Sparkles className="w-4 h-4 shrink-0" />
+                  <p className="font-bold text-sm">
+                    Showing fuzzy matches for &ldquo;{urlQuery}&rdquo;. Did you
+                    mean{" "}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleSuggestionSearch(data.meta!.correctedQuery!)
+                      }
+                      className="font-black underline hover:text-pastel-purple-700"
+                    >
+                      {data.meta.correctedQuery}
+                    </button>
+                    ?
+                  </p>
+                </div>
+              )}
+            <div className="flex flex-wrap items-center gap-3">
             <div className="bg-pastel-yellow-300 border-3 border-black px-4 py-2 shadow-brutal-sm font-black text-sm uppercase tracking-wider">
               {data.pagination.total.toLocaleString()} results for &ldquo;
               {urlQuery}&rdquo;
             </div>
+              {data.meta?.fuzzyApplied && (
+                <div className="bg-pastel-purple-300 border-3 border-black px-4 py-2 shadow-brutal-sm font-black text-xs uppercase tracking-wider">
+                  Fuzzy search on
+                </div>
+              )}
             {isFetching && (
               <div className="bg-pastel-blue-300 border-3 border-black px-4 py-2 shadow-brutal-sm font-bold text-sm animate-pulse">
                 Updating...
               </div>
             )}
+            </div>
           </div>
         )}
 

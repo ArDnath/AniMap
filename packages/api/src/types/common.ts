@@ -42,6 +42,13 @@ export interface EpisodeInfo {
   synopsis: string | null;
 }
 
+export interface SearchMatchMeta {
+  /** Relevance 0–100 (higher = better match) */
+  score: number;
+  matchedFields: string[];
+  isFuzzyMatch?: boolean;
+}
+
 export interface SearchResult {
   id: number;
   malId: number | null;
@@ -58,6 +65,20 @@ export interface SearchResult {
   popularity: number;
   season: string | null;
   year: number | null;
+  /** Alternative titles (romaji/english/Japanese) for fuzzy matching */
+  synonyms?: string[];
+  match?: SearchMatchMeta;
+}
+
+export interface SearchMeta {
+  query: string;
+  correctedQuery?: string;
+  fuzzyApplied: boolean;
+  variantQueries: string[];
+}
+
+export interface SearchResponse extends PaginatedResponse<SearchResult> {
+  meta: SearchMeta;
 }
 
 export interface PaginatedResponse<T> {

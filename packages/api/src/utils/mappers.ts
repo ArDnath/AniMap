@@ -98,6 +98,7 @@ export function mapAniListToSearchResult(media: AniListMedia): SearchResult {
     popularity: media.popularity,
     season: media.season,
     year: media.seasonYear,
+    synonyms: media.synonyms?.length ? media.synonyms : undefined,
   };
 }
 

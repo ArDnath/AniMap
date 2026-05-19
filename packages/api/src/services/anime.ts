@@ -9,6 +9,7 @@ import type {
   EpisodeInfo,
   SearchResult,
   PaginatedResponse,
+  SearchResponse,
   APIConfig,
 } from "../types/common.js";
 import {
@@ -20,6 +21,10 @@ import {
   mapJikanRecommendationToSearchResult,
 } from "../utils/mappers.js";
 import { fromAniListPage, fromJikanPage } from "../utils/pagination.js";
+import {
+  advancedSearchAnime,
+  type AdvancedSearchOptions,
+} from "../search/advanced-search.js";
 
 export class AnimeService {
   private aniListClient: AniListClient;
@@ -60,6 +65,17 @@ export class AnimeService {
       result.media.map(mapAniListToSearchResult),
       result.pageInfo,
     );
+  }
+
+  /**
+   * Advanced search with multi-variant fetch, synonym-aware fuzzy ranking,
+   * and optional query correction metadata.
+   */
+  async advancedSearchAnime(
+    query: string,
+    options?: AdvancedSearchOptions,
+  ): Promise<SearchResponse> {
+    return advancedSearchAnime(this.aniListClient, query, options);
   }
 
   async getTrending(
