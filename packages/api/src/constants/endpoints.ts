@@ -121,6 +121,10 @@ export const ANIME_SERVICE_METHODS = {
     defaultProvider: "anilist",
   },
   searchAnime: { providers: ["anilist"] },
+  advancedSearchAnime: {
+    providers: ["anilist"],
+    description: "Fuzzy full-text search with synonym ranking",
+  },
   getTrending: { providers: ["anilist"] },
   getPopular: { providers: ["anilist"] },
   getTopAnime: { providers: ["jikan"] },

@@ -63,7 +63,7 @@ export interface AniListMedia {
   } | null;
   updatedAt: number;
   genres: string[];
-  synonyms: string[];
+  synonyms?: string[];
   averageScore: number | null;
   meanScore: number | null;
   popularity: number;

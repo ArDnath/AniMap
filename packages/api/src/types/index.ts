@@ -10,6 +10,9 @@ export type {
   AnimeInfo,
   EpisodeInfo,
   SearchResult,
+  SearchMatchMeta,
+  SearchMeta,
+  SearchResponse,
   PaginatedResponse,
   APIConfig,
 } from "./common.js";

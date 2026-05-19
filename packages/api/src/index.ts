@@ -14,9 +14,18 @@ export type {
   AnimeInfo,
   EpisodeInfo,
   SearchResult,
+  SearchMatchMeta,
+  SearchMeta,
+  SearchResponse,
   PaginatedResponse,
   APIConfig,
 } from "./types/index.js";
+
+export type { AdvancedSearchOptions } from "./search/advanced-search.js";
+export {
+  buildSearchVariants,
+  normalizeQuery,
+} from "./search/normalize.js";
 
 export { APIError } from "./types/index.js";
 
