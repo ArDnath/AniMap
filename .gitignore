@@ -4,6 +4,9 @@
 node_modules
 .pnp
 .pnp.js
+.pnpm-cache
+.pnpm-home
+.pnpm-store
 
 # Local env files
 .env
