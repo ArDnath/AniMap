@@ -1,19 +1,11 @@
 /**
- * Utility functions to map between different API formats
+ * Map provider-specific responses to unified AniTube types
  */
 
-import type {
-  JikanAnime,
-  JikanEpisode,
-  AniListMedia,
-  AnimeInfo,
-  EpisodeInfo,
-  SearchResult,
-} from "../types/index.js";
+import type { AniListMedia } from "../types/anilist.js";
+import type { JikanAnime, JikanEpisode } from "../types/jikan.js";
+import type { AnimeInfo, EpisodeInfo, SearchResult } from "../types/common.js";
 
-/**
- * Map AniList media to unified AnimeInfo format
- */
 export function mapAniListToAnimeInfo(media: AniListMedia): AnimeInfo {
   return {
     id: media.id,
@@ -54,9 +46,6 @@ export function mapAniListToAnimeInfo(media: AniListMedia): AnimeInfo {
   };
 }
 
-/**
- * Map Jikan anime to unified AnimeInfo format
- */
 export function mapJikanToAnimeInfo(anime: JikanAnime): AnimeInfo {
   return {
     id: anime.mal_id,
@@ -73,9 +62,9 @@ export function mapJikanToAnimeInfo(anime: JikanAnime): AnimeInfo {
     genres: anime.genres.map((g) => g.name),
     episodes: anime.episodes,
     status: anime.status,
-    season: anime.season?.toUpperCase() || null,
+    season: anime.season?.toUpperCase() ?? null,
     seasonYear: anime.year,
-    averageScore: anime.score ? anime.score * 10 : null, // Convert to 0-100 scale
+    averageScore: anime.score ? anime.score * 10 : null,
     popularity: anime.members || 0,
     type: anime.type,
     format: anime.type,
@@ -92,9 +81,6 @@ export function mapJikanToAnimeInfo(anime: JikanAnime): AnimeInfo {
   };
 }
 
-/**
- * Map AniList media to SearchResult format
- */
 export function mapAniListToSearchResult(media: AniListMedia): SearchResult {
   return {
     id: media.id,
@@ -115,9 +101,6 @@ export function mapAniListToSearchResult(media: AniListMedia): SearchResult {
   };
 }
 
-/**
- * Map Jikan anime to SearchResult format
- */
 export function mapJikanToSearchResult(anime: JikanAnime): SearchResult {
   return {
     id: anime.mal_id,
@@ -133,17 +116,22 @@ export function mapJikanToSearchResult(anime: JikanAnime): SearchResult {
     status: anime.status,
     averageScore: anime.score ? anime.score * 10 : null,
     popularity: anime.members || 0,
-    season: anime.season?.toUpperCase() || null,
+    season: anime.season?.toUpperCase() ?? null,
     year: anime.year,
   };
 }
 
-/**
- * Map Jikan episode to EpisodeInfo format
- */
-export function mapJikanToEpisodeInfo(episode: JikanEpisode): EpisodeInfo {
+export function mapJikanToEpisodeInfo(
+  episode: JikanEpisode,
+  episodeNumber?: number,
+): EpisodeInfo {
+  const number =
+    episodeNumber ??
+    parseEpisodeNumberFromUrl(episode.url) ??
+    episode.mal_id;
+
   return {
-    number: episode.mal_id,
+    number,
     title: episode.title,
     aired: episode.aired,
     duration: episode.duration,
@@ -153,15 +141,36 @@ export function mapJikanToEpisodeInfo(episode: JikanEpisode): EpisodeInfo {
   };
 }
 
-/**
- * Format date from AniList format
- */
+export function mapJikanRecommendationToSearchResult(
+  entry: Pick<JikanAnime, "mal_id" | "images" | "title">,
+  votes: number,
+): SearchResult {
+  return {
+    id: entry.mal_id,
+    malId: entry.mal_id,
+    title: {
+      english: null,
+      romaji: entry.title,
+      native: null,
+    },
+    coverImage:
+      entry.images.webp.image_url || entry.images.jpg.image_url,
+    type: null,
+    episodes: null,
+    status: "UNKNOWN",
+    averageScore: null,
+    popularity: votes,
+    season: null,
+    year: null,
+  };
+}
+
 function formatDate(date?: {
   year: number | null;
   month: number | null;
   day: number | null;
 }): string | null {
-  if (!date || !date.year) return null;
+  if (!date?.year) return null;
 
   const year = date.year;
   const month = date.month ? String(date.month).padStart(2, "0") : "01";
@@ -170,9 +179,13 @@ function formatDate(date?: {
   return `${year}-${month}-${day}`;
 }
 
-/**
- * Get the best title from an anime
- */
+function parseEpisodeNumberFromUrl(url: string): number | null {
+  const match = url.match(/\/episode\/(\d+)/);
+  if (!match?.[1]) return null;
+  const n = Number.parseInt(match[1], 10);
+  return Number.isNaN(n) ? null : n;
+}
+
 export function getBestTitle(title: {
   english: string | null;
   romaji: string | null;
