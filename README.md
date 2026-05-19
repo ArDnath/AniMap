@@ -1,6 +1,7 @@
 <div align="center">
 
-# 🗾 Animap
+# <img width="100" height="100" alt="akatsuki-emblem-naruto-anime-free-vector" src="https://github.com/user-attachments/assets/87dff6f4-1336-4120-96b3-64eb18778311" />
+Animap
 
 **A full-stack anime discovery platform built on a Turborepo monorepo,  
 powered by dual-provider API aggregation and a custom fuzzy search engine.**
