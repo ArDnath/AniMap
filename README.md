@@ -1,209 +1,99 @@
-# Animap
+<div align="center">
 
-**A full-stack anime discovery platform built on a Turborepo monorepo, powered by dual-provider API aggregation (AniList GraphQL + Jikan REST) and a custom fuzzy search engine with synonym-aware ranking.**
+# 🗾 Animap
+
+**A full-stack anime discovery platform built on a Turborepo monorepo,  
+powered by dual-provider API aggregation and a custom fuzzy search engine.**
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Turborepo](https://img.shields.io/badge/Turborepo-monorepo-EF4444?style=for-the-badge&logo=turborepo&logoColor=white)](https://turbo.build/)
+[![pnpm](https://img.shields.io/badge/pnpm-workspaces-F69220?style=for-the-badge&logo=pnpm&logoColor=white)](https://pnpm.io/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue?style=for-the-badge)](./LICENSE)
+
+[![Vercel](https://img.shields.io/badge/Deployment-Vercel-000000?style=flat-square&logo=vercel)](https://vercel.com)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker)](./Dockerfile)
+[![PWA](https://img.shields.io/badge/PWA-enabled-5A0FC8?style=flat-square&logo=pwa)](https://web.dev/progressive-web-apps/)
+[![Playwright](https://img.shields.io/badge/E2E-Playwright-2EAD33?style=flat-square&logo=playwright)](https://playwright.dev/)
+[![ESLint](https://img.shields.io/badge/Linting-ESLint%209-4B32C3?style=flat-square&logo=eslint)](https://eslint.org/)
+
+[Overview](#overview) • [Features](#key-features) • [Architecture](#architecture--design) • [Getting Started](#getting-started) • [Roadmap](#roadmap--future-improvements)
+
+</div>
 
 ---
 
 ## Overview
 
-Animap is a modern anime discovery web application that aggregates data from two major anime databases — AniList and MyAnimeList (via Jikan) — into a single, unified browsing experience. Users can search, browse by genre, explore trending and popular titles, view detailed anime information including characters, episodes, and recommendations, and manage a personal watch history.
+Animap aggregates data from **AniList** and **MyAnimeList (via Jikan)** into a single, unified discovery experience. Search, browse by genre, explore trending titles, and manage a personal watch history — all wrapped in a distinctive retro-terminal CRT aesthetic.
 
-The project is designed for anime enthusiasts who want a fast, visually distinctive interface to discover and organize anime content. It intentionally prioritizes the discovery experience — rich metadata, intelligent search, and a curated visual design — over video streaming.
+This project intentionally prioritizes the **discovery experience** — rich metadata, intelligent search, curated visual design — over video streaming.
 
-From an engineering perspective, this project demonstrates several non-trivial design decisions: a Turborepo monorepo architecture with shared packages; a custom multi-variant fuzzy search pipeline using Fuse.js that handles romanized, native, and synonym title matching across Japanese and English; a unified service layer that abstracts provider differences behind a consistent TypeScript API; server-side rendering with Next.js 16 App Router for SEO and performance; and a distinctive retro-terminal UI system built with CSS custom properties and Framer Motion microinteractions.
-
----
-
-## Live Demo & Screenshots
-
-> **Live deployment**: Coming soon — the project is configured for Vercel deployment with `next-pwa` service worker support.
-
-Recommended screenshot locations for maximum impact:
-
-- **Homepage hero carousel** — cinematic cross-fade poster slider with trending anime
-- **Browse/Search page** — advanced filter panel with genre, format, status, and sort controls
-- **Anime detail page** — header, description, episode list, characters grid, and recommendations sidebar
-- **Genre index** — icon grid layout with accent cycling
-- **Mobile nav** — animated drawer with staggered link transitions and hamburger morph
+> 🚀 **Live deployment**: Coming soon — configured for Vercel with `next-pwa` service worker support.
 
 ---
 
 ## Key Features
 
-### User-Facing
+### 👤 User-Facing
 
-- **Trending & Popular feeds** — curated homepage sections sourced from AniList's real-time trending and popularity rankings
-- **Hero carousel** — auto-rotating featured anime showcase with poster, metadata, and description cross-fades
-- **Advanced search** — full-text search with multi-genre, format, status, and sort filtering; URL-driven state for shareable searches
-- **Fuzzy search with query correction** — handles misspellings, partial matches, and romanization variants; suggests corrected queries from top results
-- **Genre browsing** — 22 genre categories with dedicated filtered views and per-genre pagination
-- **Anime detail pages** — comprehensive information including synopsis, format/status metadata, studio credits, trailer links, episode lists (via Jikan), character grids (via AniList GraphQL), and community recommendations
-- **Dark/Light theme** — persistent theme toggle with flash-prevention script and CSS variable-based design tokens
-- **Watch history & favorites** — client-side state persisted via Zustand with localStorage (watch history, continue watching, favorites)
-- **Progressive Web App** — service worker registration, manifest, and runtime caching strategies for images and API responses
-- **Responsive design** — mobile-first layout with animated mobile navigation drawer
+| Feature | Description |
+|---|---|
+| 🔥 **Trending & Popular feeds** | Real-time AniList trending + popularity rankings on homepage |
+| 🎠 **Hero carousel** | Auto-rotating featured anime with poster, metadata, and description cross-fades |
+| 🔍 **Advanced search** | Full-text search with genre, format, status, sort filtering; URL-driven state |
+| 🤔 **Fuzzy search + correction** | Handles misspellings, partial matches, romanization variants; "did you mean?" |
+| 🏷️ **Genre browsing** | 22 genre categories with dedicated filtered views and pagination |
+| 📺 **Anime detail pages** | Synopsis, studio credits, trailer, episode list, character grid, recommendations |
+| 🌗 **Dark/Light theme** | Flash-prevention script + CSS variable-based design tokens |
+| 📌 **Watch history & favorites** | Client-side state via Zustand + localStorage |
+| 📱 **PWA** | Service worker, manifest, Workbox runtime caching |
+| 📐 **Responsive design** | Mobile-first layout with Framer Motion animated navigation drawer |
 
-### Technical
+### ⚙️ Technical
 
-- **Dual-provider API aggregation** — unified `AnimeService` routes calls to AniList (GraphQL via `graphql-request`) and Jikan (REST with rate-limiting queue) with provider-specific mappers
-- **Custom fuzzy search pipeline** — multi-variant query generation → AniList candidate pool fetch → Fuse.js weighted ranking across English, romaji, native, and synonym fields → relevance scoring and pagination
-- **Server-side caching** — Next.js `unstable_cache` with CDN-appropriate `Cache-Control` headers on API routes (5-minute search cache, 2-minute suggest cache)
-- **Zustand state management** — two stores (`AppStore`, `PlayerStore`) with `devtools` and `persist` middleware; selective persistence to avoid bloating localStorage
-- **Framer Motion microinteractions** — `AnimatePresence`-driven mobile menu drawer, staggered navigation links, icon morph transitions on theme/hamburger toggles
-- **CRT terminal aesthetic** — pure CSS scanline overlays, animated scanning bar, `.geometric-box` card system with sliding corner braces and neon glow hover effects
-- **Docker-ready** — multi-stage `Dockerfile` with `turbo prune`, standalone Next.js output, and non-root production runner
+| Feature | Description |
+|---|---|
+| 🔀 **Dual-provider aggregation** | `AnimeService` façade routes to AniList (GraphQL) + Jikan (REST) |
+| 🧠 **Custom fuzzy search pipeline** | Multi-variant expansion → Fuse.js weighted ranking → relevance scoring |
+| ⚡ **Server-side caching** | `unstable_cache` with CDN `Cache-Control` headers (5min search, 2min suggest) |
+| 🗄️ **Zustand state management** | `AppStore` + `PlayerStore` with `devtools` + `persist` middleware |
+| 🎞️ **Framer Motion microinteractions** | `AnimatePresence` menu drawer, staggered links, icon morphs |
+| 🖥️ **CRT terminal aesthetic** | CSS scanline overlays, `.geometric-box` card system, neon glow hover effects |
+| 🐳 **Docker-ready** | Multi-stage `Dockerfile` with `turbo prune`, standalone output, non-root runner |
 
 ---
 
 ## Tech Stack
 
-| Layer                | Technologies                                                                          |
-| -------------------- | ------------------------------------------------------------------------------------- |
-| **Language**         | TypeScript 5.9 (strict)                                                               |
-| **Framework**        | Next.js 16.2 (App Router, React 19, Turbopack)                                        |
-| **Monorepo**         | Turborepo + pnpm workspaces                                                           |
-| **Styling**          | Tailwind CSS 3.4 + CSS custom properties design system                                |
-| **Animations**       | Framer Motion 12                                                                      |
-| **State Management** | Zustand 5 (devtools + persist middleware)                                             |
-| **Data Fetching**    | TanStack React Query 5 (client), Server Components + `fetch` (server)                 |
-| **API Clients**      | `graphql-request` + `graphql-tag` (AniList), native `fetch` with rate limiter (Jikan) |
-| **Search**           | Fuse.js 7 (fuzzy full-text ranking)                                                   |
-| **Icons**            | Lucide React                                                                          |
-| **UI Primitives**    | Radix UI (Dialog, Dropdown, Select, Tabs, Toast, Slider, Switch, etc.)                |
-| **PWA**              | `next-pwa` (Workbox runtime caching)                                                  |
-| **E2E Testing**      | Playwright (Chromium, Firefox, WebKit)                                                |
-| **Linting**          | ESLint 9 (flat config), Prettier, lint-staged + Husky pre-commit hooks                |
-| **Containerization** | Docker (multi-stage), Docker Compose                                                  |
-| **Deployment**       | Vercel (configured), standalone Next.js output                                        |
+<div align="center">
+
+| Layer | Technologies |
+|---|---|
+| **Language** | TypeScript 5.9 (strict) |
+| **Framework** | Next.js 16.2 (App Router, React 19, Turbopack) |
+| **Monorepo** | Turborepo + pnpm workspaces |
+| **Styling** | Tailwind CSS 3.4 + CSS custom properties design system |
+| **Animations** | Framer Motion 12 |
+| **State Management** | Zustand 5 (devtools + persist middleware) |
+| **Data Fetching** | TanStack React Query 5 (client), Server Components + `fetch` (server) |
+| **API Clients** | `graphql-request` + `graphql-tag` (AniList), native `fetch` with rate limiter (Jikan) |
+| **Search** | Fuse.js 7 (fuzzy full-text ranking) |
+| **Icons** | Lucide React |
+| **UI Primitives** | Radix UI (Dialog, Dropdown, Select, Tabs, Toast, Slider, Switch, etc.) |
+| **PWA** | `next-pwa` (Workbox runtime caching) |
+| **E2E Testing** | Playwright (Chromium, Firefox, WebKit) |
+| **Linting** | ESLint 9 (flat config), Prettier, lint-staged + Husky pre-commit hooks |
+| **Containerization** | Docker (multi-stage), Docker Compose |
+| **Deployment** | Vercel (configured), standalone Next.js output |
+
+</div>
 
 ---
 
 ## Architecture & Design
 
-### Monorepo Structure
-
-The project uses Turborepo to manage a multi-package workspace. The core application lives in `apps/Anitube`, while shared logic is extracted into `packages/`:
-
-- **`@anitube/api`** — the data access layer. Contains AniList and Jikan client classes, a unified `AnimeService` facade, typed mappers between provider-specific and canonical types, and the entire fuzzy search pipeline. This package compiles to ESM and is consumed by the Next.js app as a workspace dependency.
-- **`@anitube/ui`** — a shared component library exporting reusable React primitives.
-- **`@anitube/tsconfig`** and **`@anitube/eslint-config`** — shared build and lint configurations.
-
-### Data Flow
-
-Server Components in the Next.js App Router (`app/page.tsx`, `app/anime/[id]/page.tsx`, `app/genre/[slug]/page.tsx`) directly import `animeApi` from `@anitube/api` and call it at request time. This means anime detail and listing pages are fully server-rendered with no client-side data fetching waterfall. For interactive search, the client-side `SearchContent` component uses TanStack React Query to call the `/api/search` route handler, which in turn delegates to `AnimeService.advancedSearchAnime()` with server-side caching via `unstable_cache`.
-
-### Search Architecture
-
-Search is the most architecturally interesting subsystem. When a user searches, the pipeline works as follows:
-
-1. **Query normalization** — Unicode NFKC normalization, whitespace collapsing, and punctuation stripping.
-2. **Variant generation** — the original query, a punctuation-stripped variant, and a no-spaces variant are sent as separate AniList searches to widen the candidate pool.
-3. **Deduplication** — results from all variants are merged and deduplicated by AniList ID.
-4. **Fuzzy ranking** — Fuse.js scores each candidate against the normalized query across weighted fields (English 0.35, romaji 0.30, native 0.25, synonyms 0.20, all-titles 0.15). Results below a minimum relevance threshold (default 25/100) are filtered.
-5. **Query correction** — if the top result's relevance score is ≥55 and the title doesn't substring-match the query, it's suggested as a "did you mean?" correction.
-
-### State Management
-
-Client-side state is split into two Zustand stores. `AppStore` manages theme, user preferences, watch history, favorites, and continue-watching lists. `PlayerStore` manages video player settings (volume, playback rate, auto-play). Both use `persist` middleware with selective `partialize` to avoid persisting ephemeral UI state.
-
----
-
-## Project Highlights for Recruiters
-
-- **Demonstrates strong TypeScript proficiency** — strict typing throughout, discriminated unions for provider types, generic utility functions for mappers and pagination, typed GraphQL operations, and a well-defined public API surface with explicit exports.
-- **Implements a non-trivial search algorithm** — multi-variant query expansion, fuzzy full-text ranking with weighted fields, relevance scoring, and query correction. This is not a simple API passthrough; it's a custom search pipeline with real information retrieval concepts.
-- **Shows clean architectural separation** — the `@anitube/api` package has zero coupling to React or Next.js. Provider clients, mappers, types, and search logic are independently testable. The service layer abstracts provider differences behind a unified interface.
-- **Applies production patterns** — server-side caching with CDN headers, rate-limiting for the Jikan API client, error boundaries with loading/error/not-found states per route, SEO metadata generation per page, and flash-prevention for theme persistence.
-- **Demonstrates monorepo competency** — Turborepo task graph with `dependsOn`, shared TypeScript and ESLint configurations, workspace protocol dependencies, and Docker integration with `turbo prune --docker`.
-- **Builds a cohesive design system** — CSS custom properties for theming, Tailwind utility extensions, reusable animation primitives (`.geometric-box`, `.neon-text`, `.animate-blink`), and component-level Framer Motion patterns.
-- **Includes E2E test infrastructure** — Playwright tests organized by feature domain (home, search, navigation, anime details, layout) with auto-starting dev server configuration.
-- **Enforces code quality** — ESLint flat config, Prettier, Husky pre-commit hooks running lint-staged, and TypeScript strict mode across all packages.
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- **Node.js** ≥ 18
-- **pnpm** 9.x (`corepack enable` to activate)
-- **Docker** (optional, for containerized builds)
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/ArDnath/anitube.git
-cd anitube
-
-# Install dependencies
-pnpm install
-
-# Copy environment variables
-cp apps/Anitube/.env.example apps/Anitube/.env.local
-```
-
-### Development
-
-```bash
-# Start all workspace packages in parallel (API + Next.js app)
-pnpm dev
-```
-
-The app will be available at [http://localhost:3000](http://localhost:3000).
-
-### Production Build
-
-```bash
-# Build all packages and the Next.js app
-pnpm build
-```
-
-### Docker
-
-```bash
-# Build and run the production container
-docker compose up --build
-```
-
-### Testing, Linting & Type Checking
-
-```bash
-# Run E2E tests (Playwright)
-pnpm test:e2e
-
-# Lint all packages
-pnpm lint
-
-# Type check all packages
-pnpm check-types
-
-# Format code
-pnpm format
-```
-
----
-
-## Environment & Configuration
-
-The application uses environment variables for API endpoint configuration. No API keys are required — both AniList and Jikan are public APIs.
-
-| Variable                      | Description              | Default                      |
-| ----------------------------- | ------------------------ | ---------------------------- |
-| `NEXT_PUBLIC_APP_URL`         | Application base URL     | `http://localhost:3000`      |
-| `NEXT_PUBLIC_API_URL`         | Jikan API base URL       | `https://api.jikan.moe/v4`   |
-| `NEXT_PUBLIC_ANILIST_API_URL` | AniList GraphQL endpoint | `https://graphql.anilist.co` |
-
-**Configuration files enforcing code quality:**
-
-- `tsconfig.json` — strict TypeScript across all packages with shared base configs
-- `eslint.config.mjs` — ESLint 9 flat config with Next.js and React internal presets
-- `.lintstagedrc.js` — runs ESLint fix and Prettier on staged files
-- `.husky/pre-commit` — gates all commits through lint-staged
-
----
-
-## Project Structure
+### 🏗️ Monorepo Structure
 
 ```
 anitube/
@@ -246,68 +136,242 @@ anitube/
 └── pnpm-workspace.yaml             # Workspace package definitions
 ```
 
+### 🔄 Data Flow
+
+```mermaid
+flowchart TD
+    Browser(["🌐 Browser"])
+    SC["Server Components\n(page.tsx, anime/[id]/page.tsx)"] 
+    CC["Client Components\n(SearchContent, HeroCarousel)"]
+    RQ["TanStack\nReact Query"]
+    API["/api/search\nRoute Handler"]
+    Cache["unstable_cache\n5min TTL"]
+    AS["AnimeService\nFacade"]
+    AL["AniList Client\n(GraphQL)"]
+    JK["Jikan Client\n(REST + rate limiter)"]
+
+    Browser --> SC
+    Browser --> CC
+    SC -->|"direct import at request time"| AS
+    CC --> RQ --> API --> Cache --> AS
+    AS --> AL
+    AS --> JK
+    AL -->|"graphql-request"| AniListAPI(["graphql.anilist.co"])
+    JK -->|"fetch + queue"| JikanAPI(["api.jikan.moe/v4"])
+
+    style AS fill:#6366f1,color:#fff
+    style Cache fill:#f59e0b,color:#000
+    style AL fill:#02a9ff,color:#fff
+    style JK fill:#1d4ed8,color:#fff
+```
+
+### 🔍 Search Pipeline
+
+```mermaid
+flowchart LR
+    Q(["User Query"])
+    N["1. Normalize\nNFKC + strip punctuation"]
+    V["2. Variant Generation\noriginal · stripped · no-spaces"]
+    F["3. Fetch Candidates\n3× AniList searches"]
+    D["4. Deduplicate\nby AniList ID"]
+    R["5. Fuse.js Ranking\nEN 0.35 · romaji 0.30\nnative 0.25 · synonyms 0.20"]
+    T["6. Threshold Filter\nscore ≥ 25/100"]
+    C["7. Query Correction\nscore ≥ 55 → 'did you mean?'"]
+    OUT(["Ranked Results"])
+
+    Q --> N --> V --> F --> D --> R --> T --> C --> OUT
+
+    style Q fill:#10b981,color:#fff
+    style OUT fill:#10b981,color:#fff
+    style R fill:#6366f1,color:#fff
+    style C fill:#f59e0b,color:#000
+```
+
+### 🗂️ State Management
+
+```mermaid
+flowchart LR
+    subgraph Zustand Stores
+        AS2["AppStore\n─────────────\n• theme\n• watch history\n• favorites\n• continue watching"]
+        PS["PlayerStore\n─────────────\n• volume\n• playback rate\n• auto-play"]
+    end
+
+    LS[("localStorage")]
+    AS2 <-->|"persist middleware\n(partialize)"| LS
+    PS <-->|"persist middleware\n(partialize)"| LS
+
+    style AS2 fill:#6366f1,color:#fff
+    style PS fill:#8b5cf6,color:#fff
+    style LS fill:#374151,color:#fff
+```
+
+---
+
+## 🎯 Project Highlights for Recruiters
+
+> This section summarizes the engineering decisions that make this project non-trivial.
+
+- **💪 Strong TypeScript proficiency** — strict typing throughout, discriminated unions for provider types, generic utility functions for mappers and pagination, typed GraphQL operations, and a well-defined public API surface with explicit exports.
+
+- **🧠 Non-trivial search algorithm** — multi-variant query expansion, fuzzy full-text ranking with weighted fields, relevance scoring, and query correction. This is a custom search pipeline with real information retrieval concepts, not a simple API passthrough.
+
+- **🧱 Clean architectural separation** — `@anitube/api` has zero coupling to React or Next.js. Provider clients, mappers, types, and search logic are independently testable behind a unified service interface.
+
+- **🏭 Production patterns** — server-side caching with CDN headers, rate-limiting for the Jikan API, error boundaries with loading/error/not-found states per route, SEO metadata per page, flash-prevention for theme persistence.
+
+- **📦 Monorepo competency** — Turborepo task graph with `dependsOn`, shared TypeScript and ESLint configs, workspace protocol dependencies, Docker with `turbo prune --docker`.
+
+- **🎨 Cohesive design system** — CSS custom properties for theming, Tailwind extensions, reusable animation primitives (`.geometric-box`, `.neon-text`, `.animate-blink`), component-level Framer Motion patterns.
+
+- **🧪 E2E test infrastructure** — Playwright tests organized by feature domain (home, search, navigation, anime details, layout) with auto-starting dev server configuration.
+
+- **✅ Code quality enforcement** — ESLint flat config, Prettier, Husky pre-commit hooks running lint-staged, TypeScript strict mode across all packages.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- **Node.js** ≥ 18
+- **pnpm** 9.x (`corepack enable` to activate)
+- **Docker** (optional, for containerized builds)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/ArDnath/AniMap.git
+cd AniMap
+
+# Install dependencies
+pnpm install
+
+# Copy environment variables
+cp apps/Anitube/.env.example apps/Anitube/.env.local
+```
+
+### Development
+
+```bash
+# Start all workspace packages in parallel (API + Next.js app)
+pnpm dev
+```
+
+The app will be available at [http://localhost:3000](http://localhost:3000).
+
+### Production Build
+
+```bash
+pnpm build
+```
+
+### 🐳 Docker
+
+```bash
+docker compose up --build
+```
+
+### Testing, Linting & Type Checking
+
+```bash
+pnpm test:e2e    # Playwright E2E tests
+pnpm lint        # Lint all packages
+pnpm check-types # TypeScript type check
+pnpm format      # Prettier format
+```
+
+---
+
+## Environment & Configuration
+
+No API keys required — both AniList and Jikan are public APIs.
+
+| Variable | Description | Default |
+|---|---|---|
+| `NEXT_PUBLIC_APP_URL` | Application base URL | `http://localhost:3000` |
+| `NEXT_PUBLIC_API_URL` | Jikan API base URL | `https://api.jikan.moe/v4` |
+| `NEXT_PUBLIC_ANILIST_API_URL` | AniList GraphQL endpoint | `https://graphql.anilist.co` |
+
+**Quality-gate configuration files:**
+- `tsconfig.json` — strict TypeScript across all packages with shared base configs
+- `eslint.config.mjs` — ESLint 9 flat config with Next.js and React internal presets
+- `.lintstagedrc.js` — runs ESLint fix and Prettier on staged files
+- `.husky/pre-commit` — gates all commits through lint-staged
+
 ---
 
 ## Implementation Details & Trade-offs
 
-### Rate Limiting (Jikan Client)
+<details>
+<summary><strong>⏱️ Rate Limiting (Jikan Client)</strong></summary>
 
-The Jikan API enforces a rate limit of ~3 requests/second. The `JikanClient` implements a queue-based rate limiter using promise chaining (`this.chain`), ensuring requests are serialized with a minimum interval. This avoids 429 responses without requiring external rate-limiting libraries.
+The Jikan API enforces ~3 requests/second. `JikanClient` implements a queue-based rate limiter using promise chaining (`this.chain`), serializing requests with a minimum interval. This avoids 429 responses without external libraries.
 
-### Search Relevance Scoring
+</details>
 
-The fuzzy search converts Fuse.js scores (0 = perfect match, 1 = no match) into a 0–100 relevance scale. Results below 25 are filtered by default. When fewer than 5 results pass the threshold, unmatched candidates are appended with a baseline score of 10 and marked as fuzzy matches to provide fallback results.
+<details>
+<summary><strong>📊 Search Relevance Scoring</strong></summary>
 
-### Theme Flash Prevention
+Fuse.js scores (0 = perfect, 1 = no match) are converted to a 0–100 relevance scale. Results below 25 are filtered. When fewer than 5 results pass the threshold, unmatched candidates are appended with a baseline score of 10 and flagged as fuzzy matches.
 
-A blocking `<script>` in the `<head>` reads the theme preference from `localStorage` before React hydrates, adding the `.light` class immediately. This prevents the visible dark-to-light flash that commonly plagues client-side theme implementations.
+</details>
 
-### Provider Abstraction
+<details>
+<summary><strong>🌗 Theme Flash Prevention</strong></summary>
 
-The `AnimeService` facade routes calls to the appropriate provider. AniList handles metadata-heavy queries (details, search, trending, popular, genre), while Jikan handles MAL-specific data (episodes, recommendations, top rankings). This split leverages each API's strengths — AniList's rich GraphQL schema and Jikan's episode-level granularity.
+A blocking `<script>` in `<head>` reads `localStorage` before React hydrates and adds the `.light` class immediately — preventing the dark-to-light flash common in client-side theme implementations.
 
-### Deliberate Simplifications
+</details>
 
-- **No authentication** — the app is a discovery platform; watch history and favorites are stored client-side only.
-- **No database** — all data is sourced from external APIs. State persistence is handled entirely by Zustand + localStorage.
-- **Video player is a demo** — the `VideoPlayer` component is fully functional (keyboard shortcuts, seek, volume, playback speed, fullscreen) but uses a sample video URL since this is a discovery platform, not a streaming service.
+<details>
+<summary><strong>🔀 Provider Abstraction</strong></summary>
+
+`AnimeService` routes calls to the right provider: AniList for metadata-heavy queries (details, search, trending, genre) and Jikan for MAL-specific data (episodes, recommendations, top rankings). Each API's strengths are fully leveraged.
+
+</details>
+
+<details>
+<summary><strong>🎯 Deliberate Simplifications</strong></summary>
+
+- **No authentication** — discovery platform; watch history/favorites are client-side only.
+- **No database** — all data from external APIs; persistence via Zustand + localStorage.
+- **Video player is a demo** — fully functional (keyboard shortcuts, seek, volume, playback speed, fullscreen) but uses a sample URL since this is a discovery platform, not a streaming service.
+
+</details>
 
 ---
 
 ## Roadmap / Future Improvements
 
-- [ ] **Unit and integration tests** — add Vitest tests for the `@anitube/api` search pipeline, mappers, and service layer
-- [ ] **CI pipeline** — GitHub Actions workflow for lint, type-check, build, and Playwright E2E on push/PR
-- [ ] **Accessibility audit** — ARIA landmarks, focus management, reduced-motion media queries, screen reader testing
-- [ ] **Search suggestions UI** — the `/api/search/suggest` endpoint exists; wire it to a typeahead dropdown in the header search input
-- [ ] **Infinite scroll** — replace pagination with intersection-observer-based infinite loading on browse/search pages
-- [ ] **Image optimization** — address Next.js LCP warnings by adding `loading="eager"` and `priority` props to above-the-fold hero images
-- [ ] **Error monitoring** — integrate Sentry or similar for production error tracking
-- [ ] **Analytics** — environment variable placeholders exist for GA and Vercel Analytics
+- [ ] **Unit and integration tests** — Vitest tests for `@anitube/api` search pipeline, mappers, and service layer
+- [ ] **CI pipeline** — GitHub Actions for lint, type-check, build, and Playwright E2E on push/PR
+- [ ] **Accessibility audit** — ARIA landmarks, focus management, reduced-motion queries, screen reader testing
+- [ ] **Search suggestions UI** — wire `/api/search/suggest` to a typeahead dropdown in the header
+- [ ] **Infinite scroll** — replace pagination with intersection-observer-based infinite loading
+- [ ] **Image optimization** — `loading="eager"` and `priority` on above-the-fold hero images
+- [ ] **Error monitoring** — integrate Sentry for production error tracking
+- [ ] **Analytics** — GA and Vercel Analytics (env placeholders already exist)
 
 ---
 
 ## Contributing
 
-Contributions are welcome. To get started:
+Contributions are welcome!
 
 ```bash
 # Fork and clone
-git clone https://github.com/<your-username>/anitube.git
-cd anitube
+git clone https://github.com/<your-username>/AniMap.git
+cd AniMap
 
 # Create a feature branch
 git checkout -b feat/your-feature
 
-# Install dependencies
+# Install and validate
 pnpm install
+pnpm lint && pnpm check-types && pnpm build
 
-# Make changes, ensure quality gates pass
-pnpm lint
-pnpm check-types
-pnpm build
-
-# Commit (Husky will run lint-staged automatically)
+# Commit (Husky runs lint-staged automatically)
 git commit -m "feat: description of change"
 
 # Open a Pull Request
@@ -321,9 +385,11 @@ This project is licensed under the **GNU Affero General Public License v3.0 (AGP
 
 ---
 
-## Author
+<div align="center">
 
-**Ariyaman Debnath**
+**Built by [Ariyaman Debnath](https://github.com/ArDnath)**
 
-- GitHub: [https://github.com/ArDnath](https://github.com/ArDnath)
-- Email: ariyamandebnath.ad@gmail.com
+[![GitHub](https://img.shields.io/badge/GitHub-ArDnath-181717?style=flat-square&logo=github)](https://github.com/ArDnath)
+[![Email](https://img.shields.io/badge/Email-ariyamandebnath.ad%40gmail.com-EA4335?style=flat-square&logo=gmail)](mailto:ariyamandebnath.ad@gmail.com)
+
+</div>
