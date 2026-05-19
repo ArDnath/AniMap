@@ -5,25 +5,18 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "cdn.myanimelist.net",
-      },
-      {
-        protocol: "https",
-        hostname: "myanimelist.net", // <-- Added this line
-      },
-      {
-        protocol: "https",
-        hostname: "s4.anilist.co",
-      },
-      {
-        protocol: "https",
-        hostname: "media.kitsu.io",
-      },
+      // MyAnimeList / MAL CDN (multiple subdomains)
+      { protocol: "https", hostname: "cdn.myanimelist.net" },
+      { protocol: "https", hostname: "myanimelist.net" },
+      { protocol: "https", hostname: "img.cdn.myanimelist.net" },
+      // AniList
+      { protocol: "https", hostname: "s4.anilist.co" },
+      // Kitsu
+      { protocol: "https", hostname: "media.kitsu.io" },
+      // Jikan uses MAL CDN images served via these hosts
+      { protocol: "https", hostname: "**.myanimelist.net" },
     ],
   },
-  // Add empty turbopack config to suppress warning
   turbopack: {},
 };
 
@@ -36,15 +29,11 @@ const pwaConfig = withPWA({
   buildExcludes: [/middleware-manifest\.json$/],
   runtimeCaching: [
     {
-      // Updated regex to catch both cdn.myanimelist.net and myanimelist.net
-      urlPattern: /^https:\/\/(cdn\.)?myanimelist\.net\/.*/i,
+      urlPattern: /^https:\/\/(cdn\.|img\.cdn\.)?myanimelist\.net\/.*/i,
       handler: "CacheFirst",
       options: {
         cacheName: "myanimelist-images",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-        },
+        expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 60 * 60 },
       },
     },
     {
@@ -52,10 +41,7 @@ const pwaConfig = withPWA({
       handler: "CacheFirst",
       options: {
         cacheName: "anilist-images",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-        },
+        expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 60 * 60 },
       },
     },
     {
@@ -63,10 +49,7 @@ const pwaConfig = withPWA({
       handler: "CacheFirst",
       options: {
         cacheName: "kitsu-images",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-        },
+        expiration: { maxEntries: 100, maxAgeSeconds: 30 * 24 * 60 * 60 },
       },
     },
     {
@@ -74,10 +57,7 @@ const pwaConfig = withPWA({
       handler: "CacheFirst",
       options: {
         cacheName: "image-cache",
-        expiration: {
-          maxEntries: 200,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-        },
+        expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 60 * 60 },
       },
     },
     {
@@ -86,10 +66,7 @@ const pwaConfig = withPWA({
       options: {
         cacheName: "api-cache",
         networkTimeoutSeconds: 10,
-        expiration: {
-          maxEntries: 50,
-          maxAgeSeconds: 5 * 60, // 5 minutes
-        },
+        expiration: { maxEntries: 50, maxAgeSeconds: 5 * 60 },
       },
     },
     {
@@ -97,10 +74,7 @@ const pwaConfig = withPWA({
       handler: "StaleWhileRevalidate",
       options: {
         cacheName: "static-resources",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 24 * 60 * 60, // 24 hours
-        },
+        expiration: { maxEntries: 100, maxAgeSeconds: 24 * 60 * 60 },
       },
     },
   ],

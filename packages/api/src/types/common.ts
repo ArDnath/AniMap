@@ -68,6 +68,7 @@ export interface SearchResult {
   /** Alternative titles (romaji/english/Japanese) for fuzzy matching */
   synonyms?: string[];
   match?: SearchMatchMeta;
+  description?: string | null;
 }
 
 export interface SearchMeta {

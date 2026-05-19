@@ -3,49 +3,30 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-interface AnimeDescriptionProps {
-  description: string | null;
-}
+export function AnimeDescription({ description }: { description: string | null }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!description) return null;
 
-export function AnimeDescription({ description }: AnimeDescriptionProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  if (!description) {
-    return null;
-  }
-
-  // Remove HTML tags
-  const cleanDescription = description.replace(/<[^>]*>/g, "");
-  const isLong = cleanDescription.length > 300;
-  const displayText = isExpanded || !isLong
-    ? cleanDescription
-    : cleanDescription.slice(0, 300) + "...";
+  const clean = description.replace(/<[^>]*>/g, "");
+  const isLong = clean.length > 400;
+  const text = expanded || !isLong ? clean : clean.slice(0, 400) + "…";
 
   return (
-    <div className="bg-white border-4 border-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6">
-      <h2 className="text-2xl font-black mb-4 flex items-center gap-2">
-        <span className="w-2 h-8 bg-pink-500 rounded" />
-        Description
-      </h2>
-      <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-        {displayText}
+    <div className="term-surface border border-[var(--border)] p-5 font-mono">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-[var(--accent)] text-[9px] uppercase tracking-widest">//</span>
+        <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--text-dim)]">SYNOPSIS</h2>
       </div>
+      <p className="text-sm text-[var(--text-dim)] leading-relaxed whitespace-pre-line">{text}</p>
       {isLong && (
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-4 flex items-center gap-2 px-4 py-2 bg-pink-200 hover:bg-pink-300 border-2 border-black rounded-lg font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-[1px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+          onClick={() => setExpanded(e => !e)}
+          className="mt-4 flex items-center gap-1.5 text-[9px] font-mono uppercase tracking-widest text-[var(--text-faint)] hover:text-[var(--accent)] transition-colors"
         >
-          {isExpanded ? (
-            <>
-              <ChevronUp className="w-4 h-4" />
-              Show Less
-            </>
-          ) : (
-            <>
-              <ChevronDown className="w-4 h-4" />
-              Show More
-            </>
-          )}
+          {expanded
+            ? <><ChevronUp className="w-3 h-3" /> SHOW_LESS</>
+            : <><ChevronDown className="w-3 h-3" /> READ_MORE</>
+          }
         </button>
       )}
     </div>

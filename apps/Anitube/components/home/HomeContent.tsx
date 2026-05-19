@@ -6,82 +6,61 @@ import { HeroSection } from "./HeroSection";
 import { AnimeSection } from "./AnimeSection";
 
 export function HomeContent() {
-  // Fetch trending anime
-  const {
-    data: trendingData,
-    isLoading: isTrendingLoading,
-  } = useQuery({
+  const { data: trendingData, isLoading: isTrendingLoading } = useQuery({
     queryKey: ["trending"],
-    queryFn: () => animeApi.getTrending(1, 12),
+    queryFn: () => animeApi.getTrending(1, 15),
   });
 
-  // Fetch popular anime
-  const {
-    data: popularData,
-    isLoading: isPopularLoading,
-  } = useQuery({
+  const { data: popularData, isLoading: isPopularLoading } = useQuery({
     queryKey: ["popular"],
     queryFn: () => animeApi.getPopular(1, 12),
   });
 
-  // Fetch current season anime
-  const {
-    data: seasonData,
-    isLoading: isSeasonLoading,
-  } = useQuery({
+  const { data: seasonData, isLoading: isSeasonLoading } = useQuery({
     queryKey: ["currentSeason"],
     queryFn: () => animeApi.getCurrentSeason(1, 12),
   });
 
-  // Fetch top anime
-  const {
-    data: topData,
-    isLoading: isTopLoading,
-  } = useQuery({
+  const { data: topData, isLoading: isTopLoading } = useQuery({
     queryKey: ["topAnime"],
     queryFn: () => animeApi.getTopAnime({ page: 1, limit: 12 }),
   });
 
-  // Use first trending anime as hero
-  const heroAnime = trendingData?.data[0] || null;
-  const trendingAnime = trendingData?.data.slice(1, 12) || [];
+  // First 3 trending anime for the hero carousel
+  const heroAnime = trendingData?.data?.slice(0, 3) ?? [];
+  // Rest for the trending section
+  const trendingAnime = trendingData?.data?.slice(3, 15) ?? [];
+  const popularAnime = popularData?.data ?? [];
+  const seasonAnime = seasonData?.data ?? [];
+  const topAnime = topData?.data ?? [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-      {/* Hero Section */}
-      <HeroSection anime={heroAnime} />
+    <main className="min-h-screen term-bg">
+      <HeroSection animeList={heroAnime} />
 
-      {/* Trending Section */}
       <AnimeSection
-        title="🔥 Trending Now"
+        title="TRENDING_NOW"
         anime={trendingAnime}
-        viewAllHref="/trending"
         isLoading={isTrendingLoading}
+        viewAllHref="/search?sort=trending"
       />
-
-      {/* Popular Section */}
       <AnimeSection
-        title="⭐ Popular This Season"
-        anime={seasonData?.data || []}
-        viewAllHref="/season"
+        title="POPULAR"
+        anime={popularAnime}
+        isLoading={isPopularLoading}
+        viewAllHref="/search?sort=popularity"
+      />
+      <AnimeSection
+        title="CURRENT_SEASON"
+        anime={seasonAnime}
         isLoading={isSeasonLoading}
       />
-
-      {/* Top Rated Section */}
       <AnimeSection
-        title="🏆 Top Rated"
-        anime={topData?.data || []}
-        viewAllHref="/top"
+        title="TOP_RATED"
+        anime={topAnime}
         isLoading={isTopLoading}
+        viewAllHref="/search?sort=score"
       />
-
-      {/* All Time Popular */}
-      <AnimeSection
-        title="💎 All Time Popular"
-        anime={popularData?.data || []}
-        viewAllHref="/popular"
-        isLoading={isPopularLoading}
-      />
-    </div>
+    </main>
   );
 }

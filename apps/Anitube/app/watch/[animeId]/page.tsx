@@ -6,5 +6,5 @@ interface Props {
 
 export default async function WatchAnimeRedirectPage({ params }: Props) {
   const { animeId } = await params;
-  redirect(`/watch/${animeId}/1`);
+  redirect(`/anime/${animeId}`);
 }

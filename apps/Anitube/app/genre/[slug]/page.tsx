@@ -3,126 +3,115 @@ import { notFound } from 'next/navigation';
 import { animeApi } from '@anitube/api';
 import { AnimeCard } from '@/components/home/AnimeCard';
 import { GenreFilters } from './GenreFilters';
+import Link from 'next/link';
 
 interface Props {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ page?: string; sort?: string; format?: string; status?: string }>;
 }
 
-// Convert slug to proper genre name
 function slugToGenre(slug: string): string {
-  return slug
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const genreName = slugToGenre(slug);
-
+  const name = slugToGenre(slug);
   return {
-    title: `${genreName} Anime | AniTube`,
-    description: `Discover the best ${genreName.toLowerCase()} anime. Browse popular ${genreName.toLowerCase()} series and movies on AniTube.`,
+    title: `${name} Anime | AniTube`,
+    description: `Discover the best ${name.toLowerCase()} anime on AniTube.`,
   };
 }
 
 export default async function GenrePage({ params, searchParams }: Props) {
-  const { slug } = await params;
+  const { slug }                   = await params;
   const { page = '1', sort, format, status } = await searchParams;
-
-  const genreName = slugToGenre(slug);
+  const genreName   = slugToGenre(slug);
   const currentPage = parseInt(page);
 
   let animeList;
   try {
-    const result = await animeApi.getAnimeByGenre(genreName, currentPage, 24);
-    animeList = result;
-  } catch (error) {
-    console.error('Failed to fetch genre:', error);
+    animeList = await animeApi.getAnimeByGenre(genreName, currentPage, 24);
+  } catch {
     notFound();
   }
 
-  const totalResults = animeList.pagination.total;
+  const total = animeList.pagination.total;
+
+  function pageLink(p: number) {
+    const q = new URLSearchParams();
+    q.set('page', String(p));
+    if (sort)   q.set('sort',   sort);
+    if (format) q.set('format', format);
+    if (status) q.set('status', status);
+    return `/genre/${slug}?${q.toString()}`;
+  }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 py-16 px-4">
+    <div className="min-h-screen term-bg py-10 px-4">
       <div className="container mx-auto max-w-7xl">
-        {/* Hero Header */}
-        <div className="mb-12 space-y-6">
-          <div className="bg-pastel-purple-300 border-4 border-black shadow-brutal-lg p-8 -rotate-1 inline-block">
-            <h1 className="text-5xl md:text-6xl font-black uppercase">{genreName}</h1>
-          </div>
-          <div className="bg-pastel-yellow-200 border-4 border-black shadow-brutal p-4 rotate-1 inline-block">
-            <p className="font-bold text-lg text-gray-900 dark:text-black">
-              {totalResults} anime in {genreName}
-            </p>
-          </div>
+        {/* Header */}
+        <div className="mb-8 font-mono">
+          <p className="text-[8px] text-[var(--text-faint)] uppercase tracking-widest mb-1">
+            &gt; ls /genre/{slug}
+          </p>
+          <h1 className="text-2xl md:text-3xl font-bold neon-text uppercase tracking-tight">
+            {genreName.toUpperCase()}
+          </h1>
+          <p className="text-[10px] text-[var(--text-dim)] mt-1">
+            {total.toLocaleString()} titles indexed
+          </p>
+          <div className="h-px bg-[var(--border)] mt-4" />
         </div>
 
         {/* Filters */}
         <GenreFilters />
 
-        {/* Results Grid */}
+        {/* Grid */}
         {animeList.data.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 mb-12">
-              {animeList.data.map((anime, index) => (
-                <AnimeCard key={anime.id} anime={anime} index={index} />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-10">
+              {animeList.data.map((anime, i) => (
+                <AnimeCard key={anime.id} anime={anime} index={i} />
               ))}
             </div>
 
             {/* Pagination */}
-            {animeList.pagination.total > 24 && (
-              <div className="flex justify-center gap-2 mt-12">
-                {/* Previous */}
+            {total > 24 && (
+              <nav className="flex justify-center items-center gap-2 flex-wrap">
                 {currentPage > 1 && (
-                  <a
-                    href={`/genre/${slug}?page=${currentPage - 1}${sort ? `&sort=${sort}` : ''}${format ? `&format=${format}` : ''}${status ? `&status=${status}` : ''}`}
-                    className="bg-pastel-purple-300 border-4 border-black shadow-brutal px-6 py-3 font-black uppercase hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm transition-all"
-                  >
-                    Previous
-                  </a>
+                  <Link href={pageLink(currentPage - 1)} className="font-mono text-[9px] uppercase tracking-widest px-3 py-1.5 border border-[var(--border)] text-[var(--text-dim)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all">
+                    ← PREV
+                  </Link>
                 )}
-
-                {/* Page Numbers */}
-                {Array.from({ length: Math.min(5, Math.ceil(totalResults / 24)) }, (_, i) => {
-                  const pageNum = i + 1;
+                {Array.from({ length: Math.min(5, Math.ceil(total / 24)) }, (_, i) => {
+                  const p = i + 1;
                   return (
-                    <a
-                      key={pageNum}
-                      href={`/genre/${slug}?page=${pageNum}${sort ? `&sort=${sort}` : ''}${format ? `&format=${format}` : ''}${status ? `&status=${status}` : ''}`}
-                      className={`border-4 border-black shadow-brutal px-4 py-3 font-black uppercase hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm transition-all ${
-                        pageNum === currentPage
-                          ? 'bg-pastel-pink-400 text-white'
-                          : 'bg-pastel-yellow-200 text-black'
+                    <Link
+                      key={p}
+                      href={pageLink(p)}
+                      className={`w-8 h-8 flex items-center justify-center font-mono text-[9px] border transition-all ${
+                        p === currentPage
+                          ? 'bg-[var(--accent)] text-[var(--bg)] border-[var(--accent)]'
+                          : 'term-surface border-[var(--border)] text-[var(--text-dim)] hover:border-[var(--accent)] hover:text-[var(--accent)]'
                       }`}
                     >
-                      {pageNum}
-                    </a>
+                      {p}
+                    </Link>
                   );
                 })}
-
-                {/* Next */}
                 {animeList.pagination.hasNextPage && (
-                  <a
-                    href={`/genre/${slug}?page=${currentPage + 1}${sort ? `&sort=${sort}` : ''}${format ? `&format=${format}` : ''}${status ? `&status=${status}` : ''}`}
-                    className="bg-pastel-blue-300 border-4 border-black shadow-brutal px-6 py-3 font-black uppercase hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm transition-all"
-                  >
-                    Next
-                  </a>
+                  <Link href={pageLink(currentPage + 1)} className="font-mono text-[9px] uppercase tracking-widest px-3 py-1.5 border border-[var(--border)] text-[var(--text-dim)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all">
+                    NEXT →
+                  </Link>
                 )}
-              </div>
+              </nav>
             )}
           </>
         ) : (
-          <div className="text-center py-20">
-            <div className="bg-pastel-coral-300 border-4 border-black shadow-brutal-lg p-12 inline-block -rotate-2">
-              <h2 className="text-4xl font-black uppercase mb-4">No Anime Found</h2>
-              <p className="font-bold text-lg text-gray-900 dark:text-black">
-                Try a different genre or check back later!
-              </p>
-            </div>
+          <div className="text-center py-20 font-mono">
+            <p className="text-[var(--accent-red)] text-sm uppercase tracking-widest">!! NO_DATA_IN_SECTOR !!</p>
+            <p className="text-[10px] text-[var(--text-dim)] mt-2">No anime found for this genre.</p>
           </div>
         )}
       </div>

@@ -21,8 +21,9 @@ function parseSearchParams(searchParams: URLSearchParams) {
     .filter(Boolean);
   const format = searchParams.get("format") ?? undefined;
   const status = searchParams.get("status") ?? undefined;
+  const sort = searchParams.get("sort") ? searchParams.get("sort")!.split(",") : undefined;
 
-  return { q, page, perPage, genres, format, status };
+  return { q, page, perPage, genres, format, status, sort };
 }
 
 async function runSearch(
@@ -32,6 +33,7 @@ async function runSearch(
   genres?: string[],
   format?: string,
   status?: string,
+  sort?: string[],
 ): Promise<SearchResponse> {
   return animeApi.advancedSearchAnime(q, {
     page,
@@ -39,19 +41,20 @@ async function runSearch(
     genres,
     format,
     status,
+    sort,
   });
 }
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const { q, page, perPage, genres, format, status } =
+    const { q, page, perPage, genres, format, status, sort } =
       parseSearchParams(searchParams);
 
-    const cacheKey = JSON.stringify({ q, page, perPage, genres, format, status });
+    const cacheKey = JSON.stringify({ q, page, perPage, genres, format, status, sort });
 
     const cachedSearch = unstable_cache(
-      () => runSearch(q, page, perPage, genres, format, status),
+      () => runSearch(q, page, perPage, genres, format, status, sort),
       ["anitube-advanced-search", cacheKey],
       { revalidate: CACHE_SECONDS, tags: ["anime-search"] },
     );

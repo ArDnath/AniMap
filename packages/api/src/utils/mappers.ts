@@ -99,6 +99,7 @@ export function mapAniListToSearchResult(media: AniListMedia): SearchResult {
     season: media.season,
     year: media.seasonYear,
     synonyms: media.synonyms?.length ? media.synonyms : undefined,
+    description: media.description,
   };
 }
 
@@ -119,6 +120,7 @@ export function mapJikanToSearchResult(anime: JikanAnime): SearchResult {
     popularity: anime.members || 0,
     season: anime.season?.toUpperCase() ?? null,
     year: anime.year,
+    description: anime.synopsis,
   };
 }
 

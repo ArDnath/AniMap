@@ -2,8 +2,8 @@
  * Application constants and configuration
  */
 
-export const APP_NAME = 'AniTube';
-export const APP_DESCRIPTION = 'Modern anime streaming platform with a beautiful neu-brutalism design';
+export const APP_NAME = 'Animap';
+export const APP_DESCRIPTION = 'Modern anime discovery platform with a retro-modern terminal design';
 
 // API Configuration
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.jikan.moe/v4';

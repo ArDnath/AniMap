@@ -1,122 +1,62 @@
-"use client";
-
 import Image from "next/image";
-import { Play, Plus } from "lucide-react";
+import Link from "next/link";
+import { Activity, BookmarkPlus } from "lucide-react";
 import type { AnimeInfo } from "@anitube/api";
 
-interface AnimeHeaderProps {
-  anime: AnimeInfo;
-}
-
-export function AnimeHeader({ anime }: AnimeHeaderProps) {
-  const title = anime.title.english || anime.title.romaji || "Unknown Title";
-  const altTitle = anime.title.romaji !== title ? anime.title.romaji : anime.title.native;
-
-  const formatStatus = (status: string) => {
-    return status.replace(/_/g, " ");
-  };
-
-  const formatSeason = () => {
-    if (!anime.season || !anime.seasonYear) return null;
-    return `${anime.season.charAt(0) + anime.season.slice(1).toLowerCase()} ${anime.seasonYear}`;
-  };
+export function AnimeHeader({ anime }: { anime: AnimeInfo }) {
+  const title = anime.title.english ?? anime.title.romaji ?? "UNKNOWN_ENTITY";
+  const altTitle = anime.title.romaji && anime.title.romaji !== title ? anime.title.romaji : (anime.title.native ?? null);
+  const coverUrl = typeof anime.coverImage === "string" ? anime.coverImage : "";
+  const bannerUrl = anime.bannerImage ? String(anime.bannerImage) : null;
 
   return (
-    <div className="relative">
-      {/* Banner Background */}
-      <div className="h-[500px] relative">
-        {anime.bannerImage ? (
-          <Image
-            src={anime.bannerImage}
-            alt={title}
-            fill
-            className="object-cover"
-            priority
-          />
+    <div className="relative font-mono overflow-hidden">
+      <div className="relative h-52 md:h-72 border-b border-[var(--border)]">
+        {bannerUrl ? (
+          <Image src={bannerUrl} alt={title} fill className="object-cover opacity-30" priority sizes="100vw" />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-purple-400 via-pink-500 to-red-500" />
+          <div className="w-full h-full bg-[var(--muted)]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--bg)]" />
+        <div className="absolute top-3 left-3 w-8 h-8 border-t border-l border-[var(--accent)] opacity-40" />
+        <div className="absolute bottom-3 right-3 w-8 h-8 border-b border-r border-[var(--accent)] opacity-40" />
       </div>
 
-      {/* Content Overlay */}
-      <div className="container mx-auto px-4 relative">
-        <div className="absolute -top-72 left-4 flex gap-8 items-end">
-          {/* Cover Poster */}
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-200" />
-            <div className="relative w-[230px] h-[340px] border-4 border-black rounded-lg overflow-hidden bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <Image
-                src={anime.coverImage}
-                alt={title}
-                fill
-                className="object-cover"
-                priority
-              />
+      <div className="container mx-auto px-4 relative -mt-24 md:-mt-36 z-10">
+        <div className="flex flex-col md:flex-row gap-6 items-center md:items-end">
+          <div className="shrink-0">
+            <div className="border border-[var(--border)] overflow-hidden bg-[var(--muted)]" style={{ width:200, aspectRatio:"2/3" }}>
+              {coverUrl ? (
+                <div className="relative w-full h-full">
+                  <Image src={coverUrl} alt={title} fill className="object-cover" priority sizes="200px" />
+                </div>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <span className="text-[8px] text-[var(--text-faint)] uppercase tracking-widest">NO_IMAGE</span>
+                </div>
+              )}
             </div>
+            <p className="text-[8px] text-[var(--text-faint)] uppercase tracking-widest mt-1.5 flex justify-between">
+              <span>ID:{anime.id}</span>
+              <span className="text-[var(--accent)] animate-pulse">STABLE</span>
+            </p>
           </div>
 
-          {/* Title and Metadata */}
-          <div className="pb-8 max-w-3xl">
-            <h1 className="text-5xl font-black mb-2 text-white drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:drop-shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all">
-              {title}
-            </h1>
-            {altTitle && (
-              <p className="text-xl text-gray-200 mb-4 drop-shadow-[2px_2px_0px_rgba(0,0,0,0.8)]">
-                {altTitle}
-              </p>
-            )}
-
-            {/* Metadata Pills */}
-            <div className="flex flex-wrap gap-3 mb-6">
-              {anime.averageScore && (
-                <div className="px-4 py-2 bg-yellow-400 border-3 border-black rounded-lg font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all">
-                  ⭐ {anime.averageScore}%
-                </div>
-              )}
-              {anime.format && (
-                <div className="px-4 py-2 bg-blue-300 border-3 border-black rounded-lg font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  {anime.format}
-                </div>
-              )}
-              {anime.status && (
-                <div className="px-4 py-2 bg-green-300 border-3 border-black rounded-lg font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  {formatStatus(anime.status)}
-                </div>
-              )}
-              {anime.episodes && (
-                <div className="px-4 py-2 bg-pink-300 border-3 border-black rounded-lg font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  {anime.episodes} Episodes
-                </div>
-              )}
-              {formatSeason() && (
-                <div className="px-4 py-2 bg-purple-300 border-3 border-black rounded-lg font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  {formatSeason()}
-                </div>
-              )}
+          <div className="flex-1 pb-2 text-center md:text-left space-y-3">
+            <div className="flex items-center justify-center md:justify-start gap-2 text-[var(--accent-amber)] text-[9px] tracking-[0.3em]">
+              <Activity className="w-3 h-3 animate-pulse" /><span>{anime.format ?? "UNKNOWN"}</span>
             </div>
-
-            {/* Genres */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {anime.genres.map((genre) => (
-                <span
-                  key={genre}
-                  className="px-3 py-1 bg-white border-2 border-black text-sm font-bold rounded shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
-                >
-                  {genre}
-                </span>
-              ))}
+            <h1 className="text-2xl md:text-4xl font-bold neon-text tracking-tight leading-tight uppercase">{title}</h1>
+            {altTitle && <p className="text-xs text-[var(--text-dim)] tracking-widest">{altTitle}</p>}
+            <div className="flex flex-wrap justify-center md:justify-start gap-2 pt-1">
+              <span className="bg-[var(--accent)] text-[var(--bg)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest">SCORE:{anime.averageScore ?? "??"}%</span>
+              <span className="border border-[var(--border)] text-[var(--text-dim)] px-2 py-0.5 text-[9px] uppercase tracking-widest">STATUS:{(anime.status ?? "UNKNOWN").replace(/_/g," ")}</span>
+              <span className="border border-[var(--border)] text-[var(--text-dim)] px-2 py-0.5 text-[9px] uppercase tracking-widest">EPS:{anime.episodes ?? "???"}</span>
             </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-4">
-              <button className="flex items-center gap-2 px-6 py-3 bg-pink-500 hover:bg-pink-600 border-3 border-black rounded-lg font-bold text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                <Play className="w-5 h-5 fill-current" />
-                Watch Now
-              </button>
-              <button className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-gray-100 border-3 border-black rounded-lg font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                <Plus className="w-5 h-5" />
-                Add to List
+            <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
+              <Link href={`/search?q=${encodeURIComponent(title)}`} className="inline-flex items-center gap-2 px-5 py-2 bg-[var(--accent)] text-[var(--bg)] font-mono font-bold text-[9px] uppercase tracking-widest hover:opacity-90 transition-opacity">FIND_SIMILAR</Link>
+              <button type="button" className="inline-flex items-center gap-2 px-5 py-2 border border-[var(--border)] text-[var(--text-dim)] font-mono text-[9px] uppercase tracking-widest hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all">
+                <BookmarkPlus className="w-3.5 h-3.5" />ADD_TO_LIST
               </button>
             </div>
           </div>

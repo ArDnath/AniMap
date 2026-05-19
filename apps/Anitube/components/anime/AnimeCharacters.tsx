@@ -1,164 +1,60 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Users } from "lucide-react";
 
-interface Character {
-  id: number;
-  role: string;
-  name: {
-    full: string;
-    native: string | null;
-  };
-  image: {
-    large: string;
-    medium: string;
-  };
-}
+interface Character { id:number; role:string; name:{full:string;native:string|null}; image:{large:string;medium:string}; }
 
-interface AnimeCharactersProps {
-  animeId: number;
-}
-
-export function AnimeCharacters({ animeId }: AnimeCharactersProps) {
-  const [characters, setCharacters] = useState<Character[]>([]);
+export function AnimeCharacters({ animeId }: { animeId: number }) {
+  const [chars, setChars] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    async function fetchCharacters() {
+    (async () => {
       try {
-        // Fetch from AniList API directly
-        const query = `
-          query ($id: Int) {
-            Media(id: $id, type: ANIME) {
-              characters(sort: [ROLE, RELEVANCE], page: 1, perPage: 12) {
-                edges {
-                  id
-                  role
-                  node {
-                    id
-                    name {
-                      full
-                      native
-                    }
-                    image {
-                      large
-                      medium
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `;
-
-        const response = await fetch("https://graphql.anilist.co", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query,
-            variables: { id: animeId },
-          }),
+        const r = await fetch("https://graphql.anilist.co", { method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ query:`query($id:Int){Media(id:$id,type:ANIME){characters(sort:[ROLE,RELEVANCE],page:1,perPage:12){edges{role node{id name{full native}image{large medium}}}}}}`, variables:{id:animeId} })
         });
-
-        const json = await response.json();
-        const edges = json.data?.Media?.characters?.edges || [];
-
-        const characterData = edges.map((edge: any) => ({
-          id: edge.node.id,
-          role: edge.role,
-          name: edge.node.name,
-          image: edge.node.image,
-        }));
-
-        setCharacters(characterData);
-      } catch (error) {
-        console.error("Failed to fetch characters:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchCharacters();
+        const j = await r.json();
+        setChars((j.data?.Media?.characters?.edges??[]).map((e:any)=>({id:e.node.id,role:e.role,name:e.node.name,image:e.node.image})));
+      } catch {}
+      finally { setLoading(false); }
+    })();
   }, [animeId]);
 
-  if (loading) {
-    return (
-      <div className="bg-white border-4 border-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6">
-        <h2 className="text-2xl font-black mb-4 flex items-center gap-2">
-          <span className="w-2 h-8 bg-purple-500 rounded" />
-          Characters
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="aspect-[2/3] bg-gray-200 border-2 border-black rounded-lg mb-2" />
-              <div className="h-4 bg-gray-200 rounded mb-1" />
-              <div className="h-3 bg-gray-200 rounded w-2/3" />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (characters.length === 0) {
-    return null;
-  }
-
-  const displayCharacters = showAll ? characters : characters.slice(0, 6);
+  if (loading) return (
+    <div className="bg-[var(--surface)] border border-[var(--border)] p-5 font-mono">
+      <div className="flex items-center gap-2 mb-4"><span className="text-[var(--accent)] text-[9px]">//</span><h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--text-dim)]">CHARACTERS</h2></div>
+      <div className="grid grid-cols-3 md:grid-cols-4 gap-3 animate-pulse">{Array.from({length:6}).map((_,i)=>(<div key={i}><div className="aspect-[2/3] bg-[var(--muted)] mb-1"/><div className="h-2 bg-[var(--muted)] w-4/5"/></div>))}</div>
+    </div>
+  );
+  if (!chars.length) return null;
+  const shown = showAll ? chars : chars.slice(0, 6);
 
   return (
-    <div className="bg-white border-4 border-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6">
-      <h2 className="text-2xl font-black mb-4 flex items-center gap-2">
-        <span className="w-2 h-8 bg-purple-500 rounded" />
-        Characters
-      </h2>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {displayCharacters.map((character) => (
-          <div
-            key={character.id}
-            className="group cursor-pointer border-3 border-black rounded-lg overflow-hidden bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all"
-          >
-            <div className="aspect-[2/3] relative overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100">
-              <Image
-                src={character.image.large}
-                alt={character.name.full}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              {character.role === "MAIN" && (
-                <div className="absolute top-2 right-2 px-2 py-1 bg-yellow-400 border-2 border-black rounded font-bold text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                  MAIN
-                </div>
-              )}
+    <div className="bg-[var(--surface)] border border-[var(--border)] p-5 font-mono">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2"><span className="text-[var(--accent)] text-[9px]">//</span><h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--text-dim)]">CHARACTERS</h2></div>
+        <span className="text-[8px] text-[var(--text-faint)] uppercase tracking-widest">{chars.length} indexed</span>
+      </div>
+      <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+        {shown.map(c => (
+          <div key={c.id} className="group border border-[var(--border)] hover:border-[var(--accent)] transition-colors overflow-hidden">
+            <div className="relative aspect-[2/3] bg-[var(--muted)]">
+              <Image src={c.image.large} alt={c.name.full} fill className="object-cover" unoptimized />
+              {c.role === "MAIN" && <div className="absolute top-0 left-0 bg-[var(--accent)] text-[var(--bg)] text-[7px] font-bold px-1.5 py-0.5 uppercase tracking-widest">MAIN</div>}
             </div>
-            <div className="p-3">
-              <h3 className="font-bold text-sm line-clamp-1 mb-1">
-                {character.name.full}
-              </h3>
-              {character.name.native && (
-                <p className="text-xs text-gray-600 line-clamp-1">
-                  {character.name.native}
-                </p>
-              )}
+            <div className="p-2">
+              <p className="text-[8px] font-bold text-[var(--text)] uppercase tracking-tight line-clamp-1">{c.name.full}</p>
+              {c.name.native && <p className="text-[7px] text-[var(--text-faint)] line-clamp-1 mt-0.5">{c.name.native}</p>}
             </div>
           </div>
         ))}
       </div>
-
-      {characters.length > 6 && (
-        <button
-          onClick={() => setShowAll(!showAll)}
-          className="mt-4 w-full px-4 py-2 bg-purple-300 hover:bg-purple-400 border-2 border-black rounded-lg font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-[1px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-        >
-          <Users className="w-4 h-4 inline mr-2" />
-          {showAll ? "Show Less" : `Show All ${characters.length} Characters`}
+      {chars.length > 6 && (
+        <button onClick={() => setShowAll(v=>!v)} className="mt-4 w-full flex items-center justify-center gap-2 py-2 border border-[var(--border)] text-[9px] font-mono uppercase tracking-widest text-[var(--text-dim)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all">
+          <Users className="w-3 h-3"/>{showAll ? "SHOW_LESS" : `LOAD_ALL (${chars.length})`}
         </button>
       )}
     </div>

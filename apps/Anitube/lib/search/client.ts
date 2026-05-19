@@ -7,6 +7,7 @@ export interface SearchRequestParams {
   genres?: string[];
   format?: string;
   status?: string;
+  sort?: string[];
 }
 
 export interface SuggestResponse {
@@ -31,6 +32,7 @@ export async function fetchAdvancedSearch(
   if (params.format) searchParams.set("format", params.format);
   if (params.status) searchParams.set("status", params.status);
   if (params.genres?.length) searchParams.set("genres", params.genres.join(","));
+  if (params.sort?.length) searchParams.set("sort", params.sort.join(","));
 
   const res = await fetch(`/api/search?${searchParams.toString()}`);
 

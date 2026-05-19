@@ -1,124 +1,73 @@
 import type { AnimeInfo as AnimeInfoType } from "@anitube/api";
 import { Calendar, Film, TrendingUp, Building2 } from "lucide-react";
 
-interface AnimeInfoProps {
-  anime: AnimeInfoType;
-}
-
-export function AnimeInfo({ anime }: AnimeInfoProps) {
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+export function AnimeInfo({ anime }: { anime: AnimeInfoType }) {
+  const fmtDate = (d: string | null) => {
+    if (!d) return "N/A";
+    return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   };
 
-  const formatStatus = (status: string) => {
-    return status.replace(/_/g, " ");
-  };
-
-  const infoItems = [
-    {
-      icon: <Film className="w-5 h-5" />,
-      label: "Format",
-      value: anime.format || "N/A",
-      color: "bg-blue-100",
-    },
-    {
-      icon: <TrendingUp className="w-5 h-5" />,
-      label: "Status",
-      value: formatStatus(anime.status),
-      color: "bg-green-100",
-    },
-    {
-      icon: <Calendar className="w-5 h-5" />,
-      label: "Start Date",
-      value: formatDate(anime.startDate),
-      color: "bg-pink-100",
-    },
-    {
-      icon: <Calendar className="w-5 h-5" />,
-      label: "End Date",
-      value: formatDate(anime.endDate),
-      color: "bg-purple-100",
-    },
+  const rows = [
+    { icon: Film,       label: "FORMAT",     value: anime.format ?? "N/A" },
+    { icon: TrendingUp, label: "STATUS",     value: (anime.status ?? "N/A").replace(/_/g, " ") },
+    { icon: Calendar,   label: "START_DATE", value: fmtDate(anime.startDate) },
+    { icon: Calendar,   label: "END_DATE",   value: fmtDate(anime.endDate) },
   ];
 
   return (
-    <div className="bg-white border-4 border-black rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6">
-      <h2 className="text-2xl font-black mb-4 flex items-center gap-2">
-        <span className="w-2 h-8 bg-green-500 rounded" />
-        Information
-      </h2>
+    <div className="term-surface border border-[var(--border)] p-5 font-mono">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-[var(--accent)] text-[9px] uppercase tracking-widest">//</span>
+        <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--text-dim)]">METADATA</h2>
+      </div>
 
-      <div className="space-y-4">
-        {infoItems.map((item, index) => (
-          <div
-            key={index}
-            className={`${item.color} border-2 border-black rounded-lg p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]`}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <div className="text-gray-700">{item.icon}</div>
-              <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
-                {item.label}
-              </span>
+      <div className="space-y-3">
+        {rows.map(({ icon: Icon, label, value }) => (
+          <div key={label} className="flex items-start gap-2 border-b border-[var(--border)] pb-2 last:border-0">
+            <Icon className="w-3.5 h-3.5 text-[var(--text-faint)] mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[8px] text-[var(--text-faint)] uppercase tracking-[0.3em]">{label}</p>
+              <p className="text-[10px] text-[var(--text)] font-bold uppercase">{value}</p>
             </div>
-            <div className="font-bold text-lg">{item.value}</div>
           </div>
         ))}
 
         {/* Studios */}
         {anime.studios && anime.studios.length > 0 && (
-          <div className="bg-yellow-100 border-2 border-black rounded-lg p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-            <div className="flex items-center gap-2 mb-2">
-              <Building2 className="w-5 h-5 text-gray-700" />
-              <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
-                Studios
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {anime.studios.map((studio, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-white border border-black rounded text-sm font-bold"
-                >
-                  {studio}
-                </span>
-              ))}
+          <div className="flex items-start gap-2 border-b border-[var(--border)] pb-2">
+            <Building2 className="w-3.5 h-3.5 text-[var(--text-faint)] mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[8px] text-[var(--text-faint)] uppercase tracking-[0.3em] mb-1">STUDIOS</p>
+              <div className="flex flex-wrap gap-1">
+                {anime.studios.map((s, i) => (
+                  <span key={i} className="text-[8px] border border-[var(--border)] px-1.5 py-0.5 text-[var(--text-dim)] uppercase tracking-widest">
+                    {s}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Popularity & Score */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Score & Popularity */}
+        <div className="grid grid-cols-2 gap-3 pt-1">
           {anime.averageScore && (
-            <div className="bg-gradient-to-br from-yellow-200 to-orange-200 border-2 border-black rounded-lg p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-              <div className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
-                Score
-              </div>
-              <div className="text-2xl font-black">{anime.averageScore}%</div>
+            <div>
+              <p className="text-[8px] text-[var(--text-faint)] uppercase tracking-[0.3em] mb-0.5">SCORE</p>
+              <p className="text-lg font-bold neon-text">{anime.averageScore}%</p>
             </div>
           )}
-          <div className="bg-gradient-to-br from-blue-200 to-purple-200 border-2 border-black rounded-lg p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-            <div className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
-              Popularity
-            </div>
-            <div className="text-2xl font-black">
-              #{anime.popularity.toLocaleString()}
-            </div>
+          <div>
+            <p className="text-[8px] text-[var(--text-faint)] uppercase tracking-[0.3em] mb-0.5">POPULARITY</p>
+            <p className="text-lg font-bold text-[var(--accent-amber)]">#{anime.popularity.toLocaleString()}</p>
           </div>
         </div>
 
         {/* Native Title */}
         {anime.title.native && (
-          <div className="bg-gray-100 border-2 border-black rounded-lg p-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-            <div className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-1">
-              Native Title
-            </div>
-            <div className="font-bold text-lg">{anime.title.native}</div>
+          <div className="border-t border-[var(--border)] pt-3">
+            <p className="text-[8px] text-[var(--text-faint)] uppercase tracking-[0.3em] mb-0.5">NATIVE_TITLE</p>
+            <p className="text-sm text-[var(--text-dim)]">{anime.title.native}</p>
           </div>
         )}
       </div>

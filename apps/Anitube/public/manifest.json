@@ -1,7 +1,7 @@
 {
-  "name": "AniTube",
-  "short_name": "AniTube",
-  "description": "Stream your favorite anime series and movies with AniTube. Discover trending, popular, and top-rated anime all in one place.",
+  "name": "Animap",
+  "short_name": "Animap",
+  "description": "Stream your favorite anime series and movies with Animap. Discover trending, popular, and top-rated anime all in one place.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAFAFA",

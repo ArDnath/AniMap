@@ -1,72 +1,87 @@
-import Link from 'next/link';
-import type { Metadata } from 'next';
-import { Film, Sparkles, Heart, Swords, Zap, Ghost, Search, Music, Laugh, Drama, Rocket, Cpu, Brain, Scroll, Mic2, MapPin, Shield, Users, Palette } from 'lucide-react';
+import Link from "next/link";
+import type { Metadata } from "next";
+import {
+  Film, Sparkles, Heart, Swords, Zap, Ghost, Search,
+  Music, Laugh, Drama, Rocket, Cpu, Brain, Scroll,
+  MapPin, Shield, Users, Palette,
+} from "lucide-react";
 
 export const metadata: Metadata = {
-  title: 'Browse by Genre | AniTube',
-  description: 'Explore anime by genre: Action, Adventure, Comedy, Drama, Fantasy, Horror, Mystery, Romance, Sci-Fi, Slice of Life, Sports, Supernatural, Thriller, and more.',
+  title: "Browse by Genre | AniTube",
+  description:
+    "Explore anime by genre: Action, Adventure, Comedy, Drama, Fantasy, Horror, Mystery, Romance, Sci-Fi, and more.",
 };
 
 const genres = [
-  { name: 'Action', slug: 'action', icon: Swords, color: 'bg-pastel-pink-300' },
-  { name: 'Adventure', slug: 'adventure', icon: MapPin, color: 'bg-pastel-purple-300' },
-  { name: 'Comedy', slug: 'comedy', icon: Laugh, color: 'bg-pastel-yellow-300' },
-  { name: 'Drama', slug: 'drama', icon: Drama, color: 'bg-pastel-blue-300' },
-  { name: 'Fantasy', slug: 'fantasy', icon: Sparkles, color: 'bg-pastel-lavender-300' },
-  { name: 'Horror', slug: 'horror', icon: Ghost, color: 'bg-pastel-coral-300' },
-  { name: 'Mystery', slug: 'mystery', icon: Search, color: 'bg-pastel-mint-300' },
-  { name: 'Romance', slug: 'romance', icon: Heart, color: 'bg-pastel-pink-300' },
-  { name: 'Sci-Fi', slug: 'sci-fi', icon: Rocket, color: 'bg-pastel-blue-300' },
-  { name: 'Slice of Life', slug: 'slice-of-life', icon: Film, color: 'bg-pastel-peach-300' },
-  { name: 'Sports', slug: 'sports', icon: Zap, color: 'bg-pastel-yellow-300' },
-  { name: 'Supernatural', slug: 'supernatural', icon: Ghost, color: 'bg-pastel-lavender-300' },
-  { name: 'Thriller', slug: 'thriller', icon: Swords, color: 'bg-pastel-coral-300' },
-  { name: 'Mecha', slug: 'mecha', icon: Cpu, color: 'bg-pastel-purple-300' },
-  { name: 'Psychological', slug: 'psychological', icon: Brain, color: 'bg-pastel-mint-300' },
-  { name: 'Historical', slug: 'historical', icon: Scroll, color: 'bg-pastel-peach-300' },
-  { name: 'Music', slug: 'music', icon: Music, color: 'bg-pastel-pink-300' },
-  { name: 'Isekai', slug: 'isekai', icon: MapPin, color: 'bg-pastel-blue-300' },
-  { name: 'Shounen', slug: 'shounen', icon: Shield, color: 'bg-pastel-yellow-300' },
-  { name: 'Shoujo', slug: 'shoujo', icon: Heart, color: 'bg-pastel-pink-300' },
-  { name: 'Seinen', slug: 'seinen', icon: Users, color: 'bg-pastel-purple-300' },
-  { name: 'Josei', slug: 'josei', icon: Palette, color: 'bg-pastel-lavender-300' },
-];
+  { name: "Action",        slug: "action",        icon: Swords },
+  { name: "Adventure",     slug: "adventure",      icon: MapPin },
+  { name: "Comedy",        slug: "comedy",         icon: Laugh },
+  { name: "Drama",         slug: "drama",          icon: Drama },
+  { name: "Fantasy",       slug: "fantasy",        icon: Sparkles },
+  { name: "Horror",        slug: "horror",         icon: Ghost },
+  { name: "Mystery",       slug: "mystery",        icon: Search },
+  { name: "Romance",       slug: "romance",        icon: Heart },
+  { name: "Sci-Fi",        slug: "sci-fi",         icon: Rocket },
+  { name: "Slice of Life", slug: "slice-of-life",  icon: Film },
+  { name: "Sports",        slug: "sports",         icon: Zap },
+  { name: "Supernatural",  slug: "supernatural",   icon: Ghost },
+  { name: "Thriller",      slug: "thriller",       icon: Swords },
+  { name: "Mecha",         slug: "mecha",          icon: Cpu },
+  { name: "Psychological", slug: "psychological",  icon: Brain },
+  { name: "Historical",    slug: "historical",     icon: Scroll },
+  { name: "Music",         slug: "music",          icon: Music },
+  { name: "Isekai",        slug: "isekai",         icon: MapPin },
+  { name: "Shounen",       slug: "shounen",        icon: Shield },
+  { name: "Shoujo",        slug: "shoujo",         icon: Heart },
+  { name: "Seinen",        slug: "seinen",         icon: Users },
+  { name: "Josei",         slug: "josei",          icon: Palette },
+] as const;
+
+// Cycle through the 3 neon accent vars
+const ACCENT_CYCLE = [
+  "var(--accent)",
+  "var(--accent-amber)",
+  "var(--accent-warm)",
+] as const;
 
 export default function GenresPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 py-16 px-4">
+    <div className="min-h-screen term-bg py-12 px-4">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
-        <div className="mb-12 space-y-6">
-          <div className="bg-pastel-purple-300 border-4 border-black shadow-brutal-lg p-8 -rotate-1 inline-block">
-            <h1 className="text-6xl font-black uppercase">Browse Genres</h1>
-          </div>
-          <div className="bg-pastel-yellow-200 border-4 border-black shadow-brutal p-6 rotate-1 max-w-2xl">
-            <p className="font-bold text-lg text-gray-900 dark:text-black">
-              Discover anime by category. From action-packed adventures to heartwarming slice-of-life stories.
-            </p>
-          </div>
+        <div className="mb-10 space-y-1 font-mono">
+          <p className="text-[9px] text-[var(--text-faint)] uppercase tracking-widest">
+            &gt; ls /genres
+          </p>
+          <h1 className="text-2xl md:text-3xl font-bold neon-text uppercase tracking-tight">
+            BROWSE_GENRES
+          </h1>
+          <p className="text-xs text-[var(--text-dim)]">
+            Select a category to filter your search.
+          </p>
+          <div className="h-px bg-[var(--border)] mt-4" />
         </div>
 
-        {/* Genre Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {genres.map((genre, index) => {
+        {/* Genre grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+          {genres.map((genre, i) => {
             const Icon = genre.icon;
-            const rotations = ['-rotate-1', 'rotate-1', '-rotate-2', 'rotate-0', 'rotate-2'];
-            const rotation = rotations[index % rotations.length];
-
+            const accent = ACCENT_CYCLE[i % ACCENT_CYCLE.length]!;
             return (
               <Link
                 key={genre.slug}
                 href={`/genre/${genre.slug}`}
-                className={`group block ${rotation} hover:rotate-0 transition-all duration-300 hover:scale-105 hover:shadow-brutal-lg`}
+                className="group block term-surface border border-[var(--border)] hover:border-[var(--accent)] transition-all duration-200 p-4 text-center"
               >
-                <div className={`${genre.color} border-4 border-black shadow-brutal p-6 h-full flex flex-col items-center justify-center gap-4 min-h-[180px]`}>
-                  <Icon className="w-12 h-12 text-black group-hover:scale-110 transition-transform" />
-                  <h2 className="font-black text-xl uppercase text-center text-black">
-                    {genre.name}
-                  </h2>
-                </div>
+                <Icon
+                  className="mx-auto mb-2 w-6 h-6 transition-colors duration-200"
+                  style={{ color: "var(--text-dim)" }}
+                />
+                <p
+                  className="font-mono text-[9px] uppercase tracking-widest text-[var(--text-dim)] group-hover:text-[var(--accent)] transition-colors duration-200"
+                >
+                  {genre.name}
+                </p>
               </Link>
             );
           })}

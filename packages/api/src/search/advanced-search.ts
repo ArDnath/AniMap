@@ -24,6 +24,7 @@ export interface AdvancedSearchOptions {
   status?: string;
   /** Minimum fuzzy relevance 0–100 (default 25) */
   minScore?: number;
+  sort?: string[];
 }
 
 function dedupeByAniListId(media: SearchResult[]): SearchResult[] {
@@ -54,6 +55,7 @@ export async function advancedSearchAnime(
     seasonYear: options?.seasonYear,
     format: options?.format,
     status: options?.status,
+    sort: options?.sort,
   };
 
   let candidates: SearchResult[] = [];

@@ -11,13 +11,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
         position="top-right"
         toastOptions={{
           classNames: {
-            toast: "border-3 border-neutral-900 shadow-brutal-md bg-white",
-            title: "text-neutral-900 font-semibold",
-            description: "text-neutral-700",
-            success: "bg-pastel-green-100",
-            error: "bg-pastel-pink-100",
-            warning: "bg-pastel-yellow-100",
-            info: "bg-pastel-blue-100",
+            toast:
+              "!font-mono !text-[10px] !uppercase !tracking-widest !border !border-[var(--border)] !bg-[var(--surface)] !text-[var(--text)] !rounded-none !shadow-none",
+            title:       "!text-[var(--accent)] !font-bold",
+            description: "!text-[var(--text-dim)]",
+            success:     "!border-[var(--accent)]",
+            error:       "!border-[var(--accent-red)] !text-red-400",
           },
         }}
       />

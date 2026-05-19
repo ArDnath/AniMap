@@ -18,7 +18,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: { default: "AniTube — Watch Anime Online", template: "%s | AniTube" },
+  title: { default: "Animap — Discover Anime Online", template: "%s | Animap" },
   description:
     "Stream your favourite anime series and movies. Discover trending, popular, and top-rated anime all in one place.",
   keywords: [
@@ -33,16 +33,16 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "AniTube",
+    title: "Animap",
   },
   openGraph: {
-    title: "AniTube — Watch Anime Online",
+    title: "Animap — Discover Anime Online",
     description: "Stream trending, popular, and top-rated anime.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AniTube",
+    title: "Animap",
     description: "Your ultimate anime streaming destination.",
   },
 };
@@ -62,17 +62,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Prevent dark-mode flash */}
+        {/* Prevent theme flash */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `
+             __html: `
               try {
-                const t = localStorage.getItem('app-storage');
-                const parsed = t ? JSON.parse(t) : {};
-                const theme = parsed?.state?.theme ?? 'system';
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (theme === 'dark' || (theme === 'system' && prefersDark)) {
-                  document.documentElement.classList.add('dark');
+                const theme = localStorage.getItem('animap-theme') || 'dark';
+                if (theme === 'light') {
+                  document.documentElement.classList.add('light');
                 }
               } catch {}
             `,
@@ -87,7 +84,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-white dark:bg-gray-950`}
+        className={`${geistMono.variable} antialiased min-h-screen flex flex-col term-bg term-text font-mono`}
       >
         <Providers>
           <Header />

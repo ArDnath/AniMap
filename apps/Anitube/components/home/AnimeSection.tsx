@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import type { SearchResult } from "@anitube/api";
 import { AnimeCard, AnimeCardSkeleton } from "./AnimeCard";
 
@@ -12,51 +9,43 @@ interface AnimeSectionProps {
   isLoading?: boolean;
 }
 
-export function AnimeSection({
-  title,
-  anime,
-  viewAllHref,
-  isLoading = false,
-}: AnimeSectionProps) {
+export function AnimeSection({ title, anime, viewAllHref, isLoading = false }: AnimeSectionProps) {
   return (
-    <section className="py-12">
+    <section className="py-10 border-b border-[var(--border)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="bg-pastel-purple border-4 border-black shadow-brutal px-6 py-3 transform -rotate-1">
-            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tight text-black">
+        {/* Section header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-[var(--accent)] opacity-40 font-mono text-base">[</span>
+            <h2 className="font-mono font-bold uppercase tracking-widest neon-text text-sm">
               {title}
             </h2>
+            <span className="text-[var(--accent)] opacity-40 font-mono text-base">]</span>
+            <div className="hidden sm:block h-px w-24 bg-[var(--border)]" />
           </div>
+
           {viewAllHref && (
             <Link
               href={viewAllHref}
-              className="group flex items-center gap-2 bg-white border-3 border-black px-4 py-2 font-bold text-black uppercase shadow-brutal-sm hover:shadow-brutal hover:translate-x-1 hover:translate-y-1 transition-all duration-200"
+              className="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)] border border-[var(--border)] px-3 py-1.5 hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
             >
-              View All
-              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              VIEW_ALL →
             </Link>
           )}
         </div>
 
-        {/* Anime Grid */}
+        {/* Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <AnimeCardSkeleton key={i} index={i} />
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {Array.from({ length: 12 }).map((_, i) => <AnimeCardSkeleton key={i} />)}
           </div>
         ) : anime.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            {anime.map((item, index) => (
-              <AnimeCard key={item.id} anime={item} index={index} />
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {anime.map((item, index) => <AnimeCard key={item.id} anime={item} index={index} />)}
           </div>
         ) : (
-          <div className="bg-pastel-coral border-4 border-black shadow-brutal p-8 text-center">
-            <p className="text-black font-bold text-lg">
-              No anime found in this section
-            </p>
+          <div className="border border-[var(--border)] p-8 text-center font-mono">
+            <p className="text-[var(--text-faint)] text-[10px] uppercase tracking-widest">NO_DATA_IN_SECTOR</p>
           </div>
         )}
       </div>

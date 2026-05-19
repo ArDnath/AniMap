@@ -1,61 +1,90 @@
-import Link from 'next/link';
-import { Github, MessageCircle, Heart } from 'lucide-react';
+import Link from "next/link";
+import { Github, MessageCircle, Terminal, Cpu, ShieldCheck } from "lucide-react";
 
 export function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-pastel-purple-100 border-t-4 border-black mt-20">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
+    <footer className="bg-[var(--surface)] border-t border-[var(--border)] mt-20 font-mono">
+      <div className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+          {/* Logo panel */}
           <div className="space-y-4">
-            <div className="bg-pastel-yellow-300 border-3 border-black rounded-lg px-3 py-2 inline-block rotate-2 shadow-brutal">
-              <span className="font-black text-xl uppercase">AniTube</span>
+            <div className="flex items-center gap-2 text-[var(--accent)]">
+              <Terminal className="w-5 h-5" />
+              <span className="font-bold text-xl uppercase tracking-tighter neon-text">
+                ANIMAP_CORE
+              </span>
             </div>
-            <p className="font-bold text-sm">
-              Stream anime with a beautiful brutalist interface powered by AniList & Jikan APIs.
+
+            <p className="text-[10px] text-[var(--text-dim)] leading-relaxed uppercase tracking-widest">
+              [SYSTEM_STATE]: OPERATIONAL
+              <br />
+              [UPTIME]: 99.9%
+              <br />
+              [LOCATION]: CLOUD_EDGE
+              <br />
+              [DATA_SOURCE]: ANILIST_DB / JIKAN_V4
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Directory */}
           <div>
-            <h3 className="font-black uppercase mb-4 text-lg">Explore</h3>
-            <ul className="space-y-2">
+            <h3 className="text-[var(--accent)] font-bold uppercase mb-4 text-xs tracking-[0.3em]">
+              /root/directory
+            </h3>
+
+            <ul className="space-y-2 text-[10px] uppercase tracking-widest">
               <li>
-                <Link href="/" className="font-bold hover:text-pastel-purple-600 transition-colors">
-                  Home
+                <Link
+                  href="/"
+                  className="text-[var(--text-dim)] hover:text-[var(--accent)] transition-colors"
+                >
+                  &gt; HOME
                 </Link>
               </li>
               <li>
                 <Link
                   href="/search"
-                  className="font-bold hover:text-pastel-purple-600 transition-colors"
+                  className="text-[var(--text-dim)] hover:text-[var(--accent)] transition-colors"
                 >
-                  Browse
+                  &gt; BROWSE
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/genre/action"
-                  className="font-bold hover:text-pastel-purple-600 transition-colors"
+                  href="/genre"
+                  className="text-[var(--text-dim)] hover:text-[var(--accent)] transition-colors"
                 >
-                  Genres
+                  &gt; GENRES
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="text-[var(--text-dim)] hover:text-[var(--accent)] transition-colors"
+                >
+                  &gt; ABOUT_SYS
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* External resources */}
           <div>
-            <h3 className="font-black uppercase mb-4 text-lg">Resources</h3>
-            <ul className="space-y-2">
+            <h3 className="text-[var(--accent)] font-bold uppercase mb-4 text-xs tracking-[0.3em]">
+              /ext/resources
+            </h3>
+
+            <ul className="space-y-2 text-[10px] uppercase tracking-widest">
               <li>
                 <a
                   href="https://anilist.co"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold hover:text-pastel-purple-600 transition-colors"
+                  className="text-[var(--text-dim)] hover:text-[var(--accent)] transition-colors"
                 >
-                  AniList
+                  &gt; ANILIST_API
                 </a>
               </li>
               <li>
@@ -63,9 +92,9 @@ export function Footer() {
                   href="https://jikan.moe"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold hover:text-pastel-purple-600 transition-colors"
+                  className="text-[var(--text-dim)] hover:text-[var(--accent)] transition-colors"
                 >
-                  Jikan API
+                  &gt; JIKAN_API
                 </a>
               </li>
               <li>
@@ -73,56 +102,57 @@ export function Footer() {
                   href="https://myanimelist.net"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold hover:text-pastel-purple-600 transition-colors"
+                  className="text-[var(--text-dim)] hover:text-[var(--accent)] transition-colors"
                 >
-                  MyAnimeList
+                  &gt; MAL_SOURCE
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Community */}
-          <div>
-            <h3 className="font-black uppercase mb-4 text-lg">Community</h3>
-            <div className="flex gap-3">
+          {/* User connect */}
+          <div className="space-y-6">
+            <h3 className="text-[var(--accent)] font-bold uppercase text-xs tracking-[0.3em]">
+              /user/connect
+            </h3>
+
+            <div className="flex gap-4">
               <a
                 href="https://github.com/ArDnath/anitube"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-12 h-12 bg-pastel-pink-300 border-3 border-black rounded-lg flex items-center justify-center hover:scale-110 transition-transform shadow-brutal"
-                aria-label="GitHub"
+                className="p-2 border border-[var(--border)] text-[var(--text-dim)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
+                aria-label="GitHub repository"
               >
-                <Github className="w-6 h-6" />
+                <Github className="w-5 h-5" />
               </a>
+
               <a
                 href="#"
-                className="w-12 h-12 bg-pastel-blue-300 border-3 border-black rounded-lg flex items-center justify-center hover:scale-110 transition-transform shadow-brutal"
-                aria-label="Discord"
+                className="p-2 border border-[var(--border)] text-[var(--text-dim)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
+                aria-label="Community link"
               >
-                <MessageCircle className="w-6 h-6" />
+                <MessageCircle className="w-5 h-5" />
               </a>
             </div>
-            <a
-              href="https://github.com/ArDnath/anitube/issues/new"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-block px-4 py-2 bg-pastel-yellow-300 border-3 border-black rounded-lg font-bold hover:scale-105 transition-transform shadow-brutal uppercase text-sm"
-            >
-              Report Issue
-            </a>
+
+            <div className="flex items-center gap-2 text-[10px] text-[var(--accent-amber)] animate-pulse">
+              <ShieldCheck className="w-3 h-3" />
+              <span>SECURE_CONNECTION_ESTABLISHED</span>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t-3 border-black">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="font-bold text-sm">
-              © {new Date().getFullYear()} AniTube. Built with{' '}
-              <Heart className="inline w-4 h-4 text-red-500 fill-red-500" /> by Ariyaman Debnath
-            </p>
-            <p className="font-bold text-xs text-gray-600">
-              Data provided by AniList, Jikan & MyAnimeList. Licensed under AGPL-3.0
-            </p>
+        {/* Footer bottom */}
+        <div className="mt-16 pt-6 border-t border-[var(--border)] flex flex-col md:flex-row justify-between items-center gap-4 text-[9px] uppercase tracking-[0.2em] text-[var(--text-faint)]">
+          <p>ESTABLISHED {currentYear} — ANIMAP NODE #001</p>
+
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1">
+              <Cpu className="w-3 h-3" />
+              POWERED_BY_VERCEL
+            </span>
+            <span>LICENSED_UNDER_AGPL_3.0</span>
           </div>
         </div>
       </div>

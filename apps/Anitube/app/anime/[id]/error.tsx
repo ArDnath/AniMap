@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { AlertCircle, Home, RefreshCcw } from "lucide-react";
+import { Home, RefreshCcw } from "lucide-react";
 
 export default function AnimeError({
   error,
@@ -11,58 +11,38 @@ export default function AnimeError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error("Anime page error:", error);
-  }, [error]);
+  useEffect(() => { console.error("Anime page error:", error); }, [error]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-yellow-50 flex items-center justify-center p-4">
-      <div className="max-w-lg w-full bg-white border-4 border-black rounded-lg shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8">
-        <div className="flex justify-center mb-6">
-          <div className="w-24 h-24 bg-red-400 border-4 border-black rounded-full flex items-center justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <AlertCircle className="w-12 h-12 text-white" strokeWidth={3} />
-          </div>
+    <div className="min-h-screen term-bg flex items-center justify-center p-4 font-mono">
+      <div className="max-w-md w-full term-surface border border-[var(--accent-red)] p-8 space-y-6 text-center">
+        <pre className="text-[var(--accent-red)] text-2xl font-bold">{`[ERROR]`}</pre>
+        <div>
+          <h1 className="text-sm font-bold text-[var(--text)] uppercase tracking-widest mb-2">
+            FAILED_TO_LOAD_ENTITY
+          </h1>
+          <p className="text-[9px] text-[var(--text-dim)] uppercase tracking-widest">
+            {error.message || "An unexpected error occurred"}
+          </p>
+          {error.digest && (
+            <p className="text-[8px] text-[var(--text-faint)] mt-2">
+              DIGEST: {error.digest}
+            </p>
+          )}
         </div>
-
-        <h1 className="text-4xl font-black text-center mb-4 drop-shadow-[3px_3px_0px_rgba(0,0,0,0.2)]">
-          Oops! Something went wrong
-        </h1>
-
-        <p className="text-center text-gray-700 mb-2 font-bold">
-          We couldn't load this anime page.
-        </p>
-
-        <p className="text-center text-sm text-gray-600 mb-8">
-          {error.message || "An unexpected error occurred"}
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex justify-center gap-3">
           <button
             onClick={reset}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-pink-500 hover:bg-pink-600 border-3 border-black rounded-lg font-bold text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent)] text-[var(--bg)] text-[9px] uppercase tracking-widest font-bold hover:opacity-90 transition-opacity"
           >
-            <RefreshCcw className="w-5 h-5" />
-            Try Again
+            <RefreshCcw className="w-3 h-3" /> RETRY
           </button>
-
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-300 hover:bg-blue-400 border-3 border-black rounded-lg font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-[var(--border)] text-[var(--text-dim)] text-[9px] uppercase tracking-widest hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all"
           >
-            <Home className="w-5 h-5" />
-            Go Home
+            <Home className="w-3 h-3" /> HOME
           </Link>
-        </div>
-
-        <div className="mt-8 pt-6 border-t-2 border-black">
-          <p className="text-xs text-center text-gray-500">
-            If this problem persists, please contact support.
-            {error.digest && (
-              <span className="block mt-1">
-                Error ID: <code className="font-mono">{error.digest}</code>
-              </span>
-            )}
-          </p>
         </div>
       </div>
     </div>

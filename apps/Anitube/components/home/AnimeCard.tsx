@@ -9,64 +9,76 @@ interface AnimeCardProps {
   index?: number;
 }
 
+const ACCENTS = [
+  "var(--accent)",
+  "var(--accent-amber)",
+  "var(--accent-warm)",
+] as const;
+
 export function AnimeCard({ anime, index = 0 }: AnimeCardProps) {
   const title =
-    anime.title.english || anime.title.romaji || anime.title.native || "Unknown";
+    anime.title.english ??
+    anime.title.romaji ??
+    anime.title.native ??
+    "UNKNOWN";
 
-  // Rotate different cards for brutalist effect
-  const rotations = ["-rotate-1", "rotate-1", "-rotate-2", "rotate-0"];
-  const colors = [
-    "bg-pastel-pink",
-    "bg-pastel-purple",
-    "bg-pastel-blue",
-    "bg-pastel-mint",
-    "bg-pastel-yellow",
-    "bg-pastel-peach",
-  ];
-
-  const rotation = rotations[index % rotations.length];
-  const bgColor = colors[index % colors.length];
+  const accent = ACCENTS[index % ACCENTS.length]!;
+  const imageUrl = anime.coverImage ?? "";
 
   return (
     <Link
       href={`/anime/${anime.id}`}
-      className={`group block transform ${rotation} hover:rotate-0 transition-all duration-300 hover:scale-105 animate-slide-in`}
-      style={{ animationDelay: `${index * 50}ms` }}
+      className="group block focus:outline-none"
     >
-      <div className={`${bgColor} border-4 border-black shadow-brutal hover:shadow-brutal-lg overflow-hidden`}>
-        {/* Image Container */}
-        <div className="relative aspect-[2/3] overflow-hidden border-b-4 border-black bg-gray-900">
-          <Image
-            src={anime.coverImage}
-            alt={title}
-            fill
-            className="object-cover group-hover:scale-110 transition-transform duration-300"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          />
-          {/* Score Badge */}
-          {anime.averageScore && (
-            <div className="absolute top-2 right-2 bg-black text-pastel-yellow border-2 border-pastel-yellow px-3 py-1 font-black text-sm">
-              ★ {anime.averageScore}%
+      <div className="geometric-box">
+        {/* Cover image container gets overflow-hidden to crop image zoom */}
+        <div className="relative w-full bg-[var(--muted)] overflow-hidden" style={{ aspectRatio: "2/3" }}>
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-[8px] text-[var(--text-faint)] uppercase tracking-widest">NO_IMG</span>
             </div>
           )}
+
+          {/* Score badge */}
+          {anime.averageScore != null && (
+            <div
+              className="absolute top-0 right-0 z-10 px-1.5 py-0.5 text-[9px] font-bold text-[var(--bg)] font-mono"
+              style={{ background: accent }}
+            >
+              {anime.averageScore}%
+            </div>
+          )}
+
+          {/* Bottom gradient */}
+          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-[var(--surface)] to-transparent pointer-events-none" />
         </div>
 
-        {/* Info Section */}
-        <div className="p-4 space-y-2">
-          <h3 className="font-black text-black text-lg line-clamp-2 uppercase tracking-tight">
+        {/* Info */}
+        <div className="p-2 space-y-1">
+          <h3
+            className="font-mono font-bold text-[9px] uppercase tracking-tight line-clamp-2 min-h-[2.4em] transition-colors duration-200"
+            style={{ color: accent }}
+          >
             {title}
           </h3>
-          <div className="flex flex-wrap gap-2 text-xs">
-            {anime.type && (
-              <span className="bg-black text-white px-2 py-1 font-bold">
-                {anime.type}
-              </span>
-            )}
-            {anime.episodes && (
-              <span className="bg-black text-white px-2 py-1 font-bold">
-                {anime.episodes} EP
-              </span>
-            )}
+          <div className="flex items-center justify-between">
+            <span
+              className="text-[8px] font-mono px-1 border leading-tight"
+              style={{ color: accent, borderColor: accent }}
+            >
+              {anime.type ?? "N/A"}
+            </span>
+            <span className="text-[7px] font-mono text-[var(--text-faint)]">
+              EP:{anime.episodes ?? "?"}
+            </span>
           </div>
         </div>
       </div>
@@ -74,21 +86,13 @@ export function AnimeCard({ anime, index = 0 }: AnimeCardProps) {
   );
 }
 
-export function AnimeCardSkeleton({ index = 0 }: { index?: number }) {
-  const rotations = ["-rotate-1", "rotate-1", "-rotate-2", "rotate-0"];
-  const rotation = rotations[index % rotations.length];
-
+export function AnimeCardSkeleton() {
   return (
-    <div className={`transform ${rotation} animate-pulse`}>
-      <div className="bg-gray-700 border-4 border-gray-600 overflow-hidden">
-        <div className="relative aspect-[2/3] bg-gray-800" />
-        <div className="p-4 space-y-2">
-          <div className="bg-gray-600 h-6 w-3/4" />
-          <div className="flex gap-2">
-            <div className="bg-gray-600 h-4 w-12" />
-            <div className="bg-gray-600 h-4 w-16" />
-          </div>
-        </div>
+    <div className="term-surface border border-[var(--border)] animate-pulse">
+      <div className="aspect-[2/3] bg-[var(--muted)]" />
+      <div className="p-2 space-y-2">
+        <div className="h-2 bg-[var(--muted)] w-4/5" />
+        <div className="h-2 bg-[var(--muted)] w-2/5" />
       </div>
     </div>
   );
