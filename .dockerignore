@@ -1,0 +1,14 @@
+node_modules
+.next
+dist
+out
+.turbo
+.git
+.github
+.husky
+.pnpm-home
+.pnpm-store
+.pnpm-cache
+*.log
+.env*.local
+pnpm-debug.log*

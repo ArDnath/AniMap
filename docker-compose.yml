@@ -1,0 +1,13 @@
+services:
+  anitube:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anitube-web
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      # Add any necessary runtime environment variables here

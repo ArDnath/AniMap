@@ -3,6 +3,7 @@ import withPWA from "next-pwa";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: "standalone",
   images: {
     remotePatterns: [
       // MyAnimeList / MAL CDN (multiple subdomains)
