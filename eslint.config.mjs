@@ -19,7 +19,7 @@ export default [
     }
     return {
       ...config,
-      files: ["apps/web/**/*.{js,jsx,ts,tsx}"],
+      files: ["apps/Anitube/**/*.{js,jsx,ts,tsx}"],
     };
   }),
   ...reactInternalConfig.map((config) => {

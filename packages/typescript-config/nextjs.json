@@ -5,7 +5,7 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "strict": false,
+    "strict": true,
     "plugins": [{ "name": "next" }],
     "module": "ESNext",
     "resolveJsonModule": true,
