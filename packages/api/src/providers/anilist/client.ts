@@ -1,29 +1,18 @@
 /**
- * AniList GraphQL Client
- * Documentation: https://anilist.gitbook.io/anilist-apiv2-docs/
+ * AniList GraphQL client
+ * @see https://anilist.gitbook.io/anilist-apiv2-docs/
  */
 
 import { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-tag";
-import type { AniListMedia, APIError } from "../types/index.js";
-
-interface PageInfo {
-  total: number;
-  currentPage: number;
-  lastPage: number;
-  hasNextPage: boolean;
-  perPage: number;
-}
-
-interface MediaConnection {
-  edges: Array<{ node: AniListMedia }>;
-  pageInfo: PageInfo;
-}
+import { ANILIST_BASE_URL } from "../../constants/endpoints.js";
+import type { AniListMedia, AniListMediaPage } from "../../types/anilist.js";
+import { APIError } from "../../types/common.js";
 
 export class AniListClient {
   private client: GraphQLClient;
 
-  constructor(endpoint = "https://graphql.anilist.co") {
+  constructor(endpoint = ANILIST_BASE_URL) {
     this.client = new GraphQLClient(endpoint, {
       headers: {
         "Content-Type": "application/json",
@@ -32,9 +21,6 @@ export class AniListClient {
     });
   }
 
-  /**
-   * Get anime by AniList ID
-   */
   async getAnimeById(id: number): Promise<AniListMedia> {
     const query = gql`
       query ($id: Int) {
@@ -154,23 +140,10 @@ export class AniListClient {
       }
     `;
 
-    try {
-      const data = await this.client.request<{ Media: AniListMedia }>(query, {
-        id,
-      });
-      return data.Media;
-    } catch (error) {
-      const apiError: APIError = new Error(
-        `AniList API error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      ) as APIError;
-      apiError.provider = "anilist";
-      throw apiError;
-    }
+    const data = await this.request<{ Media: AniListMedia }>(query, { id });
+    return data.Media;
   }
 
-  /**
-   * Search anime
-   */
   async searchAnime(
     search: string,
     options?: {
@@ -183,7 +156,7 @@ export class AniListClient {
       format?: string;
       status?: string;
     },
-  ): Promise<{ media: AniListMedia[]; pageInfo: PageInfo }> {
+  ): Promise<AniListMediaPage> {
     const query = gql`
       query (
         $search: String
@@ -264,43 +237,26 @@ export class AniListClient {
       }
     `;
 
-    try {
-      const variables = {
-        search,
-        page: options?.page || 1,
-        perPage: options?.perPage || 20,
-        sort: options?.sort || ["POPULARITY_DESC", "SCORE_DESC"],
-        ...(options?.genres && { genres: options.genres }),
-        ...(options?.season && { season: options.season }),
-        ...(options?.seasonYear && { seasonYear: options.seasonYear }),
-        ...(options?.format && { format: options.format }),
-        ...(options?.status && { status: options.status }),
-      };
+    const variables: Record<string, unknown> = {
+      page: options?.page ?? 1,
+      perPage: options?.perPage ?? 20,
+      sort: options?.sort ?? ["POPULARITY_DESC", "SCORE_DESC"],
+      ...(search.trim() && { search: search.trim() }),
+      ...(options?.genres && { genres: options.genres }),
+      ...(options?.season && { season: options.season }),
+      ...(options?.seasonYear && { seasonYear: options.seasonYear }),
+      ...(options?.format && { format: options.format }),
+      ...(options?.status && { status: options.status }),
+    };
 
-      const data = await this.client.request<{
-        Page: { media: AniListMedia[]; pageInfo: PageInfo };
-      }>(query, variables);
+    const data = await this.request<{
+      Page: AniListMediaPage;
+    }>(query, variables);
 
-      return {
-        media: data.Page.media,
-        pageInfo: data.Page.pageInfo,
-      };
-    } catch (error) {
-      const apiError: APIError = new Error(
-        `AniList API error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      ) as APIError;
-      apiError.provider = "anilist";
-      throw apiError;
-    }
+    return data.Page;
   }
 
-  /**
-   * Get trending anime
-   */
-  async getTrending(
-    page = 1,
-    perPage = 20,
-  ): Promise<{ media: AniListMedia[]; pageInfo: PageInfo }> {
+  async getTrending(page = 1, perPage = 20): Promise<AniListMediaPage> {
     const query = gql`
       query ($page: Int, $perPage: Int) {
         Page(page: $page, perPage: $perPage) {
@@ -346,31 +302,14 @@ export class AniListClient {
       }
     `;
 
-    try {
-      const data = await this.client.request<{
-        Page: { media: AniListMedia[]; pageInfo: PageInfo };
-      }>(query, { page, perPage });
-
-      return {
-        media: data.Page.media,
-        pageInfo: data.Page.pageInfo,
-      };
-    } catch (error) {
-      const apiError: APIError = new Error(
-        `AniList API error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      ) as APIError;
-      apiError.provider = "anilist";
-      throw apiError;
-    }
+    const data = await this.request<{ Page: AniListMediaPage }>(query, {
+      page,
+      perPage,
+    });
+    return data.Page;
   }
 
-  /**
-   * Get popular anime
-   */
-  async getPopular(
-    page = 1,
-    perPage = 20,
-  ): Promise<{ media: AniListMedia[]; pageInfo: PageInfo }> {
+  async getPopular(page = 1, perPage = 20): Promise<AniListMediaPage> {
     const query = gql`
       query ($page: Int, $perPage: Int) {
         Page(page: $page, perPage: $perPage) {
@@ -415,33 +354,19 @@ export class AniListClient {
       }
     `;
 
-    try {
-      const data = await this.client.request<{
-        Page: { media: AniListMedia[]; pageInfo: PageInfo };
-      }>(query, { page, perPage });
-
-      return {
-        media: data.Page.media,
-        pageInfo: data.Page.pageInfo,
-      };
-    } catch (error) {
-      const apiError: APIError = new Error(
-        `AniList API error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      ) as APIError;
-      apiError.provider = "anilist";
-      throw apiError;
-    }
+    const data = await this.request<{ Page: AniListMediaPage }>(query, {
+      page,
+      perPage,
+    });
+    return data.Page;
   }
 
-  /**
-   * Get seasonal anime
-   */
   async getSeasonalAnime(
     season: "WINTER" | "SPRING" | "SUMMER" | "FALL",
     year: number,
     page = 1,
     perPage = 20,
-  ): Promise<{ media: AniListMedia[]; pageInfo: PageInfo }> {
+  ): Promise<AniListMediaPage> {
     return this.searchAnime("", {
       page,
       perPage,
@@ -451,19 +376,31 @@ export class AniListClient {
     });
   }
 
-  /**
-   * Get anime by genre
-   */
   async getAnimeByGenre(
     genre: string,
     page = 1,
     perPage = 20,
-  ): Promise<{ media: AniListMedia[]; pageInfo: PageInfo }> {
+  ): Promise<AniListMediaPage> {
     return this.searchAnime("", {
       page,
       perPage,
       genres: [genre],
       sort: ["POPULARITY_DESC"],
     });
+  }
+
+  private async request<T>(
+    query: ReturnType<typeof gql>,
+    variables?: Record<string, unknown>,
+  ): Promise<T> {
+    try {
+      return await this.client.request<T>(query, variables);
+    } catch (error) {
+      throw new APIError(
+        `AniList API error: ${error instanceof Error ? error.message : "Unknown error"}`,
+        undefined,
+        "anilist",
+      );
+    }
   }
 }
